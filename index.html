@@ -1,0 +1,4614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>牛马的旅行记录本</title>
+    <style>
+        :root {
+            --primary: #2E9E6B;
+            --primary-hover: #258A5C;
+            --primary-light: #E8F5EE;
+            --secondary: #2C3E50;
+            --accent: #27AE60;
+            --accent-hover: #219A52;
+            --bg: #F0F7F4;
+            --card-bg: #FFFFFF;
+            --text-primary: #2C3E50;
+            --text-secondary: #7F8C8D;
+            --border: #D5E8D4;
+            --completed: #27AE60;
+            --pending: #F39C12;
+            --holiday: #E74C3C;
+            --shadow: 0 4px 12px rgba(46,158,107,0.08);
+            --shadow-hover: 0 8px 24px rgba(46,158,107,0.15);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --radius-xs: 6px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(46, 158, 107, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(39, 174, 96, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(46, 204, 113, 0.06) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* 欢迎横幅 */
+        .welcome-banner {
+            background: linear-gradient(135deg, #E8F5EE 0%, #D4EFDF 30%, #FEF9E7 70%, #FDEBD0 100%);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 28px 32px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            top: -30px;
+            right: -20px;
+            width: 140px;
+            height: 140px;
+            background: radial-gradient(circle, rgba(46,158,107,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .welcome-banner::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            left: 30%;
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(243,156,18,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .welcome-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 12px;
+            position: relative;
+        }
+        .welcome-desc {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.9;
+            position: relative;
+            max-width: 680px;
+        }
+        .welcome-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+            position: relative;
+        }
+        .welcome-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+        .welcome-chip:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        }
+        .welcome-chip .chip-icon {
+            font-size: 16px;
+            line-height: 1;
+        }
+        .welcome-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: rgba(255,255,255,0.6);
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 18px;
+            transition: all 0.2s;
+            z-index: 1;
+        }
+        .welcome-close:hover {
+            background: rgba(255,255,255,0.9);
+            color: var(--text-primary);
+        }
+        .welcome-banner.hidden { display: none; }
+
+        @media (max-width: 768px) {
+            .welcome-banner { padding: 20px; }
+            .welcome-title { font-size: 17px; }
+            .welcome-features { gap: 8px; }
+            .welcome-chip { font-size: 12px; padding: 5px 12px; }
+        }
+
+        .navbar {
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 0 24px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .navbar-brand svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            border-radius: var(--radius-sm);
+            transition: all 0.25s ease-out;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-tab:hover {
+            color: var(--primary);
+            background: rgba(46, 158, 107, 0.08);
+        }
+
+        .nav-tab.active {
+            color: var(--primary);
+            background: rgba(46, 158, 107, 0.12);
+            font-weight: 600;
+        }
+
+        .nav-tab svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 32px 24px;
+        }
+
+        .view-container {
+            display: none;
+        }
+
+        .view-container.active {
+            display: block;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .list-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .filter-select {
+            padding: 10px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .filter-select:hover, .filter-select:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+
+        .btn-add {
+            padding: 12px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease-out;
+            box-shadow: 0 4px 12px rgba(46, 158, 107, 0.3);
+        }
+
+        .btn-add:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(46, 158, 107, 0.4);
+        }
+
+        .btn-add svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn-export, .btn-import {
+            padding: 10px 18px;
+            border: 1.5px solid var(--primary);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.25s ease-out;
+        }
+
+        .btn-export {
+            background: white;
+            color: var(--primary);
+        }
+
+        .btn-export:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .btn-import {
+            background: white;
+            color: var(--primary);
+        }
+
+        .btn-import:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+        }
+
+        .btn-export svg, .btn-import svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .import-file-input {
+            display: none;
+        }
+
+        /* 导入结果提示 */
+        .import-toast {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            padding: 14px 24px;
+            border-radius: var(--radius-sm);
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            z-index: 1000;
+            transform: translateX(120%);
+            transition: transform 0.3s ease-out;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .import-toast.show {
+            transform: translateX(0);
+        }
+
+        .import-toast.success {
+            background: var(--completed);
+        }
+
+        .import-toast.error {
+            background: var(--holiday);
+        }
+
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-item {
+            background: var(--card-bg);
+            padding: 20px 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .stat-icon.total { background: rgba(46, 158, 107, 0.12); color: var(--primary); }
+        .stat-icon.completed { background: rgba(39, 174, 96, 0.12); color: var(--completed); }
+        .stat-icon.pending { background: rgba(243, 156, 18, 0.12); color: #E5A84C; }
+        .stat-icon.expense { background: rgba(44, 62, 80, 0.1); color: var(--secondary); }
+
+        .stat-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .stat-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .travel-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 20px;
+        }
+
+        .travel-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            transition: all 0.25s ease-out;
+            border: 1px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .travel-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .travel-card.completed::before { background: var(--completed); }
+        .travel-card.pending::before { background: var(--pending); }
+
+        .travel-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+            border-color: var(--border);
+        }
+
+        .travel-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .travel-date {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .travel-date-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(46, 158, 107, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+
+        .travel-date-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .travel-date-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .travel-date-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .travel-status {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .travel-status.completed {
+            background: rgba(39, 174, 96, 0.12);
+            color: var(--completed);
+        }
+
+        .travel-status.pending {
+            background: rgba(243, 156, 18, 0.15);
+            color: #D68910;
+        }
+
+        .travel-destination {
+            margin-bottom: 12px;
+        }
+
+        .travel-destination h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .travel-destination .region-badge {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .travel-destination .region-badge.domestic {
+            background: rgba(39, 174, 96, 0.12);
+            color: var(--completed);
+        }
+
+        .travel-destination .region-badge.overseas {
+            background: rgba(46, 158, 107, 0.12);
+            color: var(--primary);
+        }
+
+        .travel-destination span {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .travel-expense {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            padding: 10px 14px;
+            background: rgba(46, 158, 107, 0.06);
+            border-radius: var(--radius-xs);
+        }
+
+        .travel-expense svg {
+            width: 16px;
+            height: 16px;
+            color: var(--primary);
+        }
+
+        .travel-expense span {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .travel-expense small {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .travel-duration {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .travel-duration svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .travel-highlight {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            padding: 12px;
+            background: rgba(46, 158, 107, 0.06);
+            border-radius: var(--radius-xs);
+            margin-bottom: 16px;
+        }
+
+        .travel-highlight-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--accent);
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .travel-card-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+        }
+
+        .btn-action {
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            border-radius: var(--radius-xs);
+            font-size: 13px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-action:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(46, 158, 107, 0.05);
+        }
+
+        .btn-action.delete:hover {
+            border-color: #E53E3E;
+            color: #E53E3E;
+            background: rgba(229, 62, 62, 0.05);
+        }
+
+        .btn-action svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.4;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        /* 日历样式 */
+        .calendar-container {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .calendar-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-nav {
+            width: 40px;
+            height: 40px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            border-radius: var(--radius-xs);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .btn-nav:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+            background: rgba(46, 158, 107, 0.05);
+        }
+
+        .btn-nav svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .btn-nav.today-btn {
+            width: auto;
+            padding: 0 16px;
+            font-size: 14px;
+        }
+
+        .calendar-weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+            margin-bottom: 8px;
+        }
+
+        .weekday {
+            text-align: center;
+            padding: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .calendar-day {
+            min-height: 80px;
+            padding: 8px;
+            border-radius: var(--radius-xs);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            background: rgba(46, 158, 107, 0.05);
+            border-color: var(--border);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+        }
+
+        .calendar-day.today {
+            background: rgba(46, 158, 107, 0.1);
+            border-color: var(--primary);
+        }
+
+        .day-number {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .calendar-day.today .day-number {
+            color: var(--primary);
+        }
+
+        .day-markers {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .day-marker {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .day-marker.completed { background: var(--completed); }
+        .day-marker.pending { background: var(--pending); }
+
+        .day-label {
+            font-size: 10px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .calendar-legend {
+            display: flex;
+            gap: 24px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .legend-dot.completed { background: var(--completed); }
+        .legend-dot.pending { background: var(--pending); }
+
+        /* 数据分析样式 */
+        .analysis-header {
+            margin-bottom: 24px;
+        }
+
+        .analysis-header h1 {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 8px;
+        }
+
+        .analysis-header p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .chart-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .chart-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 24px;
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-title svg {
+            width: 20px;
+            height: 20px;
+            color: var(--primary);
+        }
+
+        .chart-container {
+            position: relative;
+            height: 280px;
+        }
+
+        .chart-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .analysis-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .summary-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .summary-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .no-data-message {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .no-data-message svg {
+            width: 64px;
+            height: 64px;
+            margin-bottom: 16px;
+            opacity: 0.4;
+        }
+
+        /* 模态框样式 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(44, 62, 80, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        .modal {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 520px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-hover);
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: var(--radius-xs);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: rgba(229, 62, 62, 0.1);
+            color: #E53E3E;
+        }
+
+        .modal-close svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .form-label span {
+            color: #E53E3E;
+        }
+
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xs);
+            font-size: 15px;
+            font-family: inherit;
+            color: var(--text-primary);
+            transition: border-color 0.2s;
+            background: var(--card-bg);
+        }
+
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .form-textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 16px;
+        }
+
+        .region-toggle {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .region-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid var(--border);
+            background: var(--card-bg);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .region-btn:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .region-btn.active {
+            border-color: var(--primary);
+            background: rgba(46, 158, 107, 0.1);
+            color: var(--primary);
+        }
+
+        .region-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn-secondary {
+            padding: 12px 24px;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--text-secondary);
+            color: var(--text-primary);
+        }
+
+        .btn-primary {
+            padding: 12px 24px;
+            background: var(--primary);
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 15px;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.25s ease-out;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .detail-modal .modal-body {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+
+        .detail-item {
+            margin-bottom: 16px;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .detail-value {
+            font-size: 16px;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 0 16px;
+                flex-direction: column;
+                height: auto;
+                padding: 16px;
+                gap: 12px;
+            }
+
+            .nav-tabs {
+                width: 100%;
+                flex-wrap: wrap;
+            }
+
+            .nav-tab {
+                flex: 1;
+                justify-content: center;
+                min-width: 100px;
+                padding: 10px 12px;
+                font-size: 13px;
+            }
+
+            .main-content {
+                padding: 20px 16px;
+            }
+
+            .list-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .header-actions {
+                flex-direction: column;
+            }
+
+            .filter-select, .btn-add, .btn-export, .btn-import {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .travel-list {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-bar {
+                flex-direction: column;
+            }
+
+            .stat-item {
+                width: 100%;
+            }
+
+            .form-row, .form-row-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .calendar-day {
+                min-height: 60px;
+                padding: 4px;
+            }
+
+            .day-label {
+                display: none;
+            }
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .region-toggle {
+                flex-direction: column;
+            }
+        }
+
+        .travel-card {
+            animation: cardIn 0.4s ease-out;
+        }
+
+        @keyframes cardIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Holiday styles */
+        .calendar-day.holiday-day { background: rgba(231, 76, 60, 0.06); }
+        .calendar-day.workday-adjust { background: rgba(52, 152, 219, 0.06); }
+        .holiday-tag {
+            font-size: 9px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-weight: 600;
+            line-height: 1.3;
+            display: inline-block;
+        }
+        .holiday-tag.rest { background: rgba(231, 76, 60, 0.12); color: var(--holiday); }
+        .holiday-tag.work { background: rgba(52, 152, 219, 0.12); color: #3498DB; }
+        .holiday-name {
+            font-size: 10px;
+            color: var(--holiday);
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Recommend styles */
+        .recommend-header { margin-bottom: 24px; }
+        .recommend-header h1 {
+            font-size: 24px; font-weight: 700; color: var(--secondary); margin-bottom: 8px;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .recommend-header p { color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
+
+        .free-dates-section { margin-bottom: 28px; }
+        .free-dates-title {
+            font-size: 16px; font-weight: 600; color: var(--secondary); margin-bottom: 14px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .free-dates-title svg { width: 18px; height: 18px; color: var(--primary); }
+
+        .free-dates-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+        .free-date-chip {
+            padding: 8px 16px;
+            background: var(--primary-light);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            font-size: 13px;
+            color: var(--primary);
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .free-date-chip:hover, .free-date-chip.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        .free-date-chip .chip-type { font-size: 10px; opacity: 0.8; margin-left: 4px; }
+
+        .recommend-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .recommend-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .recommend-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-hover);
+        }
+        .recommend-card-emoji {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 56px;
+            background: linear-gradient(135deg, var(--primary-light), rgba(46, 158, 107, 0.08));
+        }
+        .recommend-card-body { padding: 16px; }
+        .recommend-card-body h3 {
+            font-size: 18px; font-weight: 700; color: var(--secondary); margin-bottom: 4px;
+        }
+        .recommend-card-body .region-label { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; }
+        .recommend-card-body p { font-size: 14px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px; }
+        .recommend-tags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+        .recommend-tag {
+            padding: 3px 10px;
+            background: var(--primary-light);
+            border-radius: 12px;
+            font-size: 11px;
+            color: var(--primary);
+            font-weight: 500;
+        }
+        .recommend-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid var(--border);
+        }
+        .recommend-budget { font-size: 14px; font-weight: 600; color: var(--primary); }
+        .recommend-days { font-size: 13px; color: var(--text-secondary); }
+        .btn-add-plan {
+            padding: 8px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: var(--radius-xs);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-add-plan:hover { background: var(--primary-hover); }
+
+        /* 心愿单样式 */
+        .wishlist-section {
+            margin-top: 40px;
+            padding-top: 32px;
+            border-top: 2px dashed var(--border);
+        }
+        .wishlist-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .wishlist-header h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .wishlist-header p {
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        .btn-add-wish {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #F39C12, #E67E22);
+            color: white;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .btn-add-wish:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+        }
+        .btn-add-wish svg { width: 16px; height: 16px; }
+        .wishlist-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+        .wishlist-empty svg { width: 48px; height: 48px; color: var(--border); margin-bottom: 12px; }
+        .wishlist-empty p { font-size: 14px; }
+        .wishlist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        .wish-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px;
+            position: relative;
+            transition: all 0.3s ease;
+            border-left: 4px solid #F39C12;
+        }
+        .wish-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-hover);
+        }
+        .wish-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .wish-card-place {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+        .wish-card-actions {
+            display: flex;
+            gap: 4px;
+        }
+        .wish-card-actions button {
+            width: 28px;
+            height: 28px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        .wish-card-actions button:hover { background: var(--bg); color: var(--primary); }
+        .wish-card-actions button.btn-wish-delete:hover { color: #E74C3C; }
+        .wish-card-actions button svg { width: 15px; height: 15px; }
+        .wish-card-region {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        .wish-card-reason {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        .wish-card-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+        .wish-tag {
+            padding: 3px 10px;
+            background: rgba(243, 156, 18, 0.1);
+            border-radius: 12px;
+            font-size: 11px;
+            color: #E67E22;
+            font-weight: 500;
+        }
+        .wish-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .wish-priority {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .wish-priority.high { background: rgba(231, 76, 60, 0.1); color: #E74C3C; }
+        .wish-priority.medium { background: rgba(243, 156, 18, 0.1); color: #F39C12; }
+        .wish-priority.low { background: rgba(52, 152, 219, 0.1); color: #3498DB; }
+
+        /* 心愿单表单模态框 */
+        .wish-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 200;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .wish-modal-overlay.active { display: flex; }
+        .wish-modal {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 520px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+            overflow: hidden;
+        }
+        .wish-modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .wish-modal-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+        .wish-modal-close {
+            width: 32px; height: 32px;
+            border: none; background: none;
+            cursor: pointer; color: var(--text-secondary);
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+        }
+        .wish-modal-close:hover { background: var(--bg); color: var(--text-primary); }
+        .wish-modal-close svg { width: 20px; height: 20px; }
+        .wish-modal-body {
+            padding: 24px;
+        }
+        .wish-form-group {
+            margin-bottom: 18px;
+        }
+        .wish-form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--secondary);
+            margin-bottom: 6px;
+        }
+        .wish-form-group label span { color: #E74C3C; }
+        .wish-form-group input,
+        .wish-form-group textarea,
+        .wish-form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xs);
+            font-size: 14px;
+            color: var(--text-primary);
+            background: var(--card-bg);
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        .wish-form-group input:focus,
+        .wish-form-group textarea:focus,
+        .wish-form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        .wish-form-group textarea { resize: vertical; min-height: 80px; }
+        .wish-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .wish-modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        .wish-btn-cancel {
+            padding: 10px 20px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            border-radius: var(--radius-xs);
+            font-size: 14px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        .wish-btn-cancel:hover { background: var(--bg); }
+        .wish-btn-save {
+            padding: 10px 24px;
+            background: linear-gradient(135deg, #F39C12, #E67E22);
+            color: white;
+            border: none;
+            border-radius: var(--radius-xs);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .wish-btn-save:hover { box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3); }
+
+        @media (max-width: 768px) {
+            .wishlist-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+            .btn-add-wish { width: 100%; justify-content: center; }
+            .wishlist-grid { grid-template-columns: 1fr; }
+            .wish-form-row { grid-template-columns: 1fr; }
+        }
+
+        /* 行李清单按钮 */
+        .btn-action.packing {
+            border-color: #F39C12;
+            color: #E67E22;
+        }
+        .btn-action.packing:hover {
+            background: rgba(243, 156, 18, 0.08);
+            border-color: #E67E22;
+            color: #D68910;
+        }
+        .btn-action.packing .packing-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 5px;
+            border-radius: 9px;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1;
+        }
+        .btn-action.packing .packing-badge.done {
+            background: rgba(39, 174, 96, 0.12);
+            color: var(--completed);
+        }
+        .btn-action.packing .packing-badge.partial {
+            background: rgba(243, 156, 18, 0.12);
+            color: #E67E22;
+        }
+        .btn-action.packing .packing-badge.empty {
+            background: rgba(127, 140, 141, 0.1);
+            color: var(--text-secondary);
+        }
+
+        /* 行李清单模态框 */
+        .packing-modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1100;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+        }
+        .packing-modal-overlay.active { display: flex; }
+        .packing-modal {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 600px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease-out;
+        }
+        .packing-modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .packing-modal-header h2 {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .packing-modal-header h2 svg { width: 22px; height: 22px; color: #E67E22; }
+        .packing-modal-header .packing-trip-info {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+            font-weight: 400;
+        }
+        .packing-modal-close {
+            width: 32px; height: 32px;
+            border: none; background: none;
+            cursor: pointer; color: var(--text-secondary);
+            border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        .packing-modal-close:hover { background: var(--bg); color: var(--text-primary); }
+        .packing-modal-close svg { width: 20px; height: 20px; }
+
+        /* 行李清单工具栏 */
+        .packing-toolbar {
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+        .packing-progress {
+            font-size: 13px;
+            color: var(--text-secondary);
+            flex: 1;
+        }
+        .packing-progress strong {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .packing-progress-bar {
+            display: inline-block;
+            width: 80px;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
+            margin-left: 8px;
+            vertical-align: middle;
+            overflow: hidden;
+        }
+        .packing-progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        .btn-packing-template {
+            padding: 6px 14px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            border-radius: var(--radius-xs);
+            font-size: 12px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-packing-template:hover {
+            border-color: #E67E22;
+            color: #E67E22;
+            background: rgba(243, 156, 18, 0.05);
+        }
+        .btn-packing-template svg { width: 14px; height: 14px; }
+
+        /* 行李清单主体 */
+        .packing-body {
+            padding: 16px 24px 24px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .packing-category {
+            margin-bottom: 20px;
+        }
+        .packing-category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+        .packing-category-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .packing-category-title .cat-icon {
+            font-size: 18px;
+            line-height: 1;
+        }
+        .packing-category-count {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        .packing-items {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .packing-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: var(--radius-xs);
+            transition: background 0.15s;
+        }
+        .packing-item:hover { background: var(--bg); }
+        .packing-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+        .packing-item-name {
+            flex: 1;
+            font-size: 14px;
+            color: var(--text-primary);
+            border: none;
+            background: none;
+            font-family: inherit;
+            outline: none;
+            padding: 2px 0;
+        }
+        .packing-item-name:focus {
+            border-bottom: 1px solid var(--primary);
+        }
+        .packing-item.checked .packing-item-name {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+        }
+        .packing-item-delete {
+            width: 24px; height: 24px;
+            border: none; background: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0;
+            transition: all 0.15s;
+            flex-shrink: 0;
+        }
+        .packing-item:hover .packing-item-delete { opacity: 1; }
+        .packing-item-delete:hover { color: #E53E3E; background: rgba(229,62,62,0.08); }
+        .packing-item-delete svg { width: 14px; height: 14px; }
+
+        /* 添加物品 */
+        .packing-add-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .packing-add-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-xs);
+            font-size: 13px;
+            color: var(--text-primary);
+            background: none;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        .packing-add-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            border-style: solid;
+        }
+        .packing-add-input::placeholder { color: #BDC3C7; }
+        .packing-add-btn {
+            padding: 8px 14px;
+            border: none;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius-xs);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .packing-add-btn:hover { background: var(--primary-hover); }
+
+        /* 添加分类 */
+        .packing-add-category {
+            margin-top: 16px;
+            display: flex;
+            gap: 8px;
+        }
+        .packing-add-category-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px dashed var(--border);
+            border-radius: var(--radius-xs);
+            font-size: 13px;
+            color: var(--text-primary);
+            background: none;
+            font-family: inherit;
+        }
+        .packing-add-category-input:focus {
+            outline: none;
+            border-color: #E67E22;
+            border-style: solid;
+        }
+        .packing-add-category-btn {
+            padding: 8px 14px;
+            border: 1px solid #E67E22;
+            background: rgba(243, 156, 18, 0.05);
+            color: #E67E22;
+            border-radius: var(--radius-xs);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .packing-add-category-btn:hover {
+            background: rgba(243, 156, 18, 0.12);
+        }
+
+        /* 模板选择浮层 */
+        .packing-template-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 4px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            z-index: 10;
+            padding: 8px 0;
+            min-width: 200px;
+            display: none;
+        }
+        .packing-template-dropdown.show { display: block; }
+        .packing-template-option {
+            padding: 10px 16px;
+            font-size: 13px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: background 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .packing-template-option:hover { background: var(--bg); }
+        .packing-template-option .tmpl-icon { font-size: 16px; line-height: 1; }
+        .packing-template-option .tmpl-desc { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+
+        .packing-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-secondary);
+        }
+        .packing-empty svg { width: 48px; height: 48px; color: var(--border); margin-bottom: 12px; }
+        .packing-empty p { font-size: 14px; margin-bottom: 16px; }
+
+        @media (max-width: 768px) {
+            .packing-modal { max-height: 90vh; }
+            .packing-toolbar { flex-direction: column; align-items: flex-start; }
+        }
+    </style>
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="16" cy="16" r="14" fill="#2E9E6B" fill-opacity="0.15"/>
+                <path d="M16 6L21 12V26L16 22L11 26V12L16 6Z" fill="#2E9E6B"/>
+                <circle cx="16" cy="16" r="4" fill="white"/>
+            </svg>
+            牛马的旅行记录本
+        </div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" data-view="list">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/>
+                    <rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/>
+                    <rect x="14" y="14" width="7" height="7" rx="1"/>
+                </svg>
+                记录列表
+            </button>
+            <button class="nav-tab" data-view="calendar">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                </svg>
+                日历视图
+            </button>
+            <button class="nav-tab" data-view="analysis">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"/>
+                    <line x1="12" y1="20" x2="12" y2="4"/>
+                    <line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+                数据分析
+            </button>
+            <button class="nav-tab" data-view="recommend">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+                旅行推荐
+            </button>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <!-- 列表视图 -->
+        <div class="view-container active" id="view-list">
+            <!-- 欢迎横幅 -->
+            <div class="welcome-banner" id="welcome-banner">
+                <button class="welcome-close" id="welcome-close" title="关闭">&times;</button>
+                <div class="welcome-title">Hey 牛马！欢迎回到你的旅行记录本</div>
+                <div class="welcome-desc">
+                    工作再累，也别忘了给自己充充电。这里是你的旅行大本营 —— 记录每一次说走就走的冲动，复盘每一笔花得心甘情愿的旅费，还能帮你找到下一个值得奔赴的远方。
+                </div>
+                <div class="welcome-features">
+                    <div class="welcome-chip"><span class="chip-icon">&#9997;</span> 记录旅行足迹</div>
+                    <div class="welcome-chip"><span class="chip-icon">&#128197;</span> 日历看排期</div>
+                    <div class="welcome-chip"><span class="chip-icon">&#128200;</span> 数据分析花销</div>
+                    <div class="welcome-chip"><span class="chip-icon">&#11088;</span> 智能推荐目的地</div>
+                    <div class="welcome-chip"><span class="chip-icon">&#10084;</span> 心愿单种草</div>
+                    <div class="welcome-chip"><span class="chip-icon">&#128195;</span> Excel导入导出</div>
+                </div>
+            </div>
+
+            <div class="list-header">
+                <h1 class="list-title">我的旅行足迹</h1>
+                <div class="header-actions">
+                    <select class="filter-select" id="filter-status">
+                        <option value="all">全部旅行</option>
+                        <option value="completed">已完成</option>
+                        <option value="pending">未完成</option>
+                    </select>
+                    <button class="btn-export" id="btn-export" title="导出所有旅行记录为Excel文件">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        导出Excel
+                    </button>
+                    <button class="btn-import" id="btn-import" title="从Excel文件导入旅行记录">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        导入Excel
+                    </button>
+                    <input type="file" id="import-file-input" class="import-file-input" accept=".xlsx,.xls,.csv">
+                    <button class="btn-add" id="btn-add">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        添加旅行
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <div class="stat-icon total">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-total">0</span>
+                        <span class="stat-label">总旅行次数</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon completed">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                            <polyline points="22 4 12 14.01 9 11.01"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-completed">0</span>
+                        <span class="stat-label">已完成</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon pending">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-pending">0</span>
+                        <span class="stat-label">待出行</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-icon expense">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23"/>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value" id="stat-expense">0</span>
+                        <span class="stat-label">总花费(¥)</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="travel-list" id="travel-list"></div>
+        </div>
+
+        <!-- 日历视图 -->
+        <div class="view-container" id="view-calendar">
+            <div class="calendar-container">
+                <div class="calendar-header">
+                    <h2 class="calendar-title" id="calendar-title">2026年3月</h2>
+                    <div class="calendar-nav">
+                        <button class="btn-nav" id="btn-prev-month">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="15 18 9 12 15 6"/>
+                            </svg>
+                        </button>
+                        <button class="btn-nav today-btn" id="btn-today">今天</button>
+                        <button class="btn-nav" id="btn-next-month">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="9 18 15 12 9 6"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="calendar-weekdays">
+                    <div class="weekday">周日</div>
+                    <div class="weekday">周一</div>
+                    <div class="weekday">周二</div>
+                    <div class="weekday">周三</div>
+                    <div class="weekday">周四</div>
+                    <div class="weekday">周五</div>
+                    <div class="weekday">周六</div>
+                </div>
+                <div class="calendar-grid" id="calendar-grid"></div>
+                <div class="calendar-legend">
+                    <div class="legend-item">
+                        <div class="legend-dot completed"></div>
+                        <span>已完成</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot pending"></div>
+                        <span>待出行</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: var(--holiday);"></div>
+                        <span>法定假日</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot" style="background: #3498DB;"></div>
+                        <span>调休上班</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 数据分析视图 -->
+        <div class="view-container" id="view-analysis">
+            <div class="analysis-header">
+                <h1>出行数据分析与洞察</h1>
+                <p>了解您的旅行偏好和消费习惯</p>
+            </div>
+            
+            <div id="analysis-content">
+                <!-- 动态加载分析内容 -->
+            </div>
+        </div>
+
+        <!-- 旅行推荐视图 -->
+        <div class="view-container" id="view-recommend">
+            <div id="recommend-content">
+                <!-- 动态加载推荐内容 -->
+            </div>
+
+            <!-- 心愿单区域 -->
+            <div class="wishlist-section">
+                <div class="wishlist-header">
+                    <div>
+                        <h2>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:24px;height:24px;color:#F39C12">
+                                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                            </svg>
+                            旅行心愿单
+                        </h2>
+                        <p>记录你想去但还没确定时间的旅行目的地</p>
+                    </div>
+                    <button class="btn-add-wish" id="btn-add-wish">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        添加心愿
+                    </button>
+                </div>
+                <div id="wishlist-content">
+                    <!-- 动态加载心愿单 -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 心愿单添加/编辑模态框 -->
+    <div class="wish-modal-overlay" id="wish-modal">
+        <div class="wish-modal">
+            <div class="wish-modal-header">
+                <h2 id="wish-modal-title">添加旅行心愿</h2>
+                <button class="wish-modal-close" id="wish-modal-close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="wish-modal-body">
+                <form id="wish-form">
+                    <input type="hidden" id="wish-id">
+                    <div class="wish-form-group">
+                        <label>目的地名称 <span>*</span></label>
+                        <input type="text" id="wish-place" placeholder="例如：北海道、冰岛、稻城亚丁" required>
+                    </div>
+                    <div class="wish-form-row">
+                        <div class="wish-form-group">
+                            <label>所在地区</label>
+                            <input type="text" id="wish-region" placeholder="例如：日本、四川省、欧洲">
+                        </div>
+                        <div class="wish-form-group">
+                            <label>想去的程度</label>
+                            <select id="wish-priority">
+                                <option value="high">超级想去</option>
+                                <option value="medium" selected>比较想去</option>
+                                <option value="low">有机会就去</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="wish-form-group">
+                        <label>想去的理由 / 备注</label>
+                        <textarea id="wish-reason" placeholder="为什么想去这里？有什么特别想体验的？"></textarea>
+                    </div>
+                    <div class="wish-form-group">
+                        <label>标签（用逗号分隔）</label>
+                        <input type="text" id="wish-tags" placeholder="例如：美食,温泉,滑雪,蜜月">
+                    </div>
+                </form>
+            </div>
+            <div class="wish-modal-footer">
+                <button class="wish-btn-cancel" id="wish-btn-cancel">取消</button>
+                <button class="wish-btn-save" id="wish-btn-save">保存心愿</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑模态框 -->
+    <div class="modal-overlay" id="modal-form">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-title">添加旅行记录</h2>
+                <button class="modal-close" id="modal-close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="travel-form">
+                    <input type="hidden" id="travel-id">
+                    
+                    <div class="form-group">
+                        <label class="form-label">出行地区 <span>*</span></label>
+                        <div class="region-toggle">
+                            <button type="button" class="region-btn active" data-region="domestic">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                </svg>
+                                国内
+                            </button>
+                            <button type="button" class="region-btn" data-region="overseas">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <line x1="2" y1="12" x2="22" y2="12"/>
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                                </svg>
+                                海外
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">开始日期 <span>*</span></label>
+                            <input type="date" class="form-input" id="travel-start-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">结束日期</label>
+                            <input type="date" class="form-input" id="travel-end-date">
+                        </div>
+                    </div>
+
+                    <div class="form-row" id="region-selects">
+                        <div class="form-group">
+                            <label class="form-label" id="province-label">省份 <span>*</span></label>
+                            <select class="form-select" id="travel-province" required>
+                                <option value="">请选择省份</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" id="city-label">市县 <span>*</span></label>
+                            <input type="text" class="form-input" id="travel-city" placeholder="例如：杭州市西湖区" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">花费(¥) <span>*</span></label>
+                            <input type="number" class="form-input" id="travel-expense" min="0" placeholder="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">状态 <span>*</span></label>
+                            <select class="form-select" id="travel-status" required>
+                                <option value="pending">未完成</option>
+                                <option value="completed">已完成</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">旅行亮点</label>
+                        <textarea class="form-textarea" id="travel-highlight" placeholder="记录这次旅行中的美好回忆、美食、景点..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="btn-cancel">取消</button>
+                <button class="btn-primary" id="btn-save">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情模态框 -->
+    <div class="modal-overlay" id="modal-detail">
+        <div class="modal detail-modal">
+            <div class="modal-header">
+                <h2 class="modal-title">旅行详情</h2>
+                <button class="modal-close" id="detail-close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" id="detail-content"></div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="btn-detail-close">关闭</button>
+                <button class="btn-primary" id="btn-detail-edit">编辑</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 行李清单模态框 -->
+    <div class="packing-modal-overlay" id="packing-modal">
+        <div class="packing-modal">
+            <div class="packing-modal-header">
+                <div>
+                    <h2>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <path d="M16 10a4 4 0 0 1-8 0"/>
+                        </svg>
+                        行李清单
+                    </h2>
+                    <div class="packing-trip-info" id="packing-trip-info"></div>
+                </div>
+                <button class="packing-modal-close" id="packing-modal-close">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="packing-toolbar">
+                <div class="packing-progress" id="packing-progress">
+                    已打包 <strong>0</strong> / 0 件
+                    <div class="packing-progress-bar"><div class="packing-progress-fill" id="packing-progress-fill" style="width:0%"></div></div>
+                </div>
+                <div style="position: relative;">
+                    <button class="btn-packing-template" id="btn-packing-template">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                            <line x1="12" y1="8" x2="12" y2="16"/>
+                            <line x1="8" y1="12" x2="16" y2="12"/>
+                        </svg>
+                        快速模板
+                    </button>
+                    <div class="packing-template-dropdown" id="packing-template-dropdown">
+                        <div class="packing-template-option" data-template="domestic-short">
+                            <span class="tmpl-icon">&#127968;</span>
+                            <div>国内短途 (2-3天)<div class="tmpl-desc">基础衣物、洗漱包、充电器等</div></div>
+                        </div>
+                        <div class="packing-template-option" data-template="domestic-long">
+                            <span class="tmpl-icon">&#9968;</span>
+                            <div>国内长途 (5-7天)<div class="tmpl-desc">多套衣物、洗护用品、常备药等</div></div>
+                        </div>
+                        <div class="packing-template-option" data-template="overseas">
+                            <span class="tmpl-icon">&#9992;</span>
+                            <div>海外旅行<div class="tmpl-desc">护照签证、转换插头、外币等</div></div>
+                        </div>
+                        <div class="packing-template-option" data-template="beach">
+                            <span class="tmpl-icon">&#127754;</span>
+                            <div>海滩度假<div class="tmpl-desc">泳衣、防晒霜、沙滩拖鞋等</div></div>
+                        </div>
+                        <div class="packing-template-option" data-template="hiking">
+                            <span class="tmpl-icon">&#127956;</span>
+                            <div>登山徒步<div class="tmpl-desc">冲锋衣、登山鞋、登山杖等</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="packing-body" id="packing-body">
+                <!-- 动态加载 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 导入结果提示 -->
+    <div class="import-toast" id="import-toast"></div>
+
+    <script>
+        // 国内省份数据
+        const domesticProvinces = [
+            "北京市", "天津市", "上海市", "重庆市",
+            "河北省", "山西省", "辽宁省", "吉林省", "黑龙江省",
+            "江苏省", "浙江省", "安徽省", "福建省", "江西省", "山东省",
+            "河南省", "湖北省", "湖南省", "广东省", "海南省",
+            "四川省", "贵州省", "云南省", "陕西省", "甘肃省", "青海省", "台湾省",
+            "内蒙古自治区", "广西壮族自治区", "西藏自治区", "宁夏回族自治区", "新疆维吾尔自治区",
+            "香港特别行政区", "澳门特别行政区"
+        ];
+
+        // 海外国家/地区数据
+        const overseasCountries = [
+            // 亚洲
+            "日本", "韩国", "泰国", "新加坡", "马来西亚", "印度尼西亚", "越南", "柬埔寨", 
+            "菲律宾", "印度", "尼泊尔", "马尔代夫", "斯里兰卡", "老挝", "缅甸", "文莱", "东帝汶",
+            // 欧洲
+            "英国", "法国", "德国", "意大利", "西班牙", "葡萄牙", "瑞士", "奥地利", "荷兰", 
+            "比利时", "希腊", "俄罗斯", "捷克", "波兰", "丹麦", "挪威", "瑞典", "芬兰", "冰岛",
+            "爱尔兰", "匈牙利", "罗马尼亚", "土耳其", "乌克兰",
+            // 北美洲
+            "美国", "加拿大", "墨西哥", "古巴", "巴拿马",
+            // 南美洲
+            "巴西", "阿根廷", "秘鲁", "智利", "哥伦比亚", "厄瓜多尔", "乌拉圭", "委内瑞拉",
+            // 大洋洲
+            "澳大利亚", "新西兰", "斐济", "巴布亚新几内亚", "萨摩亚",
+            // 非洲
+            "埃及", "南非", "摩洛哥", "肯尼亚", "坦桑尼亚", "埃塞俄比亚", "尼日利亚", 
+            "加纳", "突尼斯", "阿尔及利亚", "纳米比亚", "博茨瓦纳"
+        ];
+
+        // 颜色配置
+        const chartColors = [
+            '#2E9E6B', '#27AE60', '#2ECC71', '#1ABC9C', '#16A085',
+            '#3498DB', '#2980B9', '#F39C12', '#E67E22', '#9B59B6',
+            '#8E44AD', '#1ABC9C', '#48C9B0', '#52BE80', '#45B39D'
+        ];
+
+        // 应用状态
+        let travels = [];
+        let wishlist = [];
+        let currentView = 'list';
+        let currentMonth = new Date();
+        let editingId = null;
+        let viewingDetail = null;
+        let currentRegion = 'domestic';
+        let editingWishId = null;
+
+        // 2026年中国法定节假日安排
+        const holidays2026 = {
+            // 元旦: 1月1日-3日放假, 1月4日补班
+            '2026-01-01': { name: '元旦', type: 'rest' },
+            '2026-01-02': { name: '元旦', type: 'rest' },
+            '2026-01-03': { name: '元旦', type: 'rest' },
+            '2026-01-04': { name: '元旦补班', type: 'work' },
+            // 春节: 2月15日-23日放假, 2月14日/28日补班
+            '2026-02-14': { name: '春节补班', type: 'work' },
+            '2026-02-15': { name: '除夕', type: 'rest' },
+            '2026-02-16': { name: '春节', type: 'rest' },
+            '2026-02-17': { name: '春节', type: 'rest' },
+            '2026-02-18': { name: '春节', type: 'rest' },
+            '2026-02-19': { name: '春节', type: 'rest' },
+            '2026-02-20': { name: '春节', type: 'rest' },
+            '2026-02-21': { name: '春节', type: 'rest' },
+            '2026-02-22': { name: '春节', type: 'rest' },
+            '2026-02-23': { name: '春节', type: 'rest' },
+            '2026-02-28': { name: '春节补班', type: 'work' },
+            // 清明节: 4月4日-6日放假
+            '2026-04-04': { name: '清明节', type: 'rest' },
+            '2026-04-05': { name: '清明节', type: 'rest' },
+            '2026-04-06': { name: '清明节', type: 'rest' },
+            // 劳动节: 5月1日-5日放假, 5月9日补班
+            '2026-05-01': { name: '劳动节', type: 'rest' },
+            '2026-05-02': { name: '劳动节', type: 'rest' },
+            '2026-05-03': { name: '劳动节', type: 'rest' },
+            '2026-05-04': { name: '劳动节', type: 'rest' },
+            '2026-05-05': { name: '劳动节', type: 'rest' },
+            '2026-05-09': { name: '劳动节补班', type: 'work' },
+            // 端午节: 6月19日-21日放假
+            '2026-06-19': { name: '端午节', type: 'rest' },
+            '2026-06-20': { name: '端午节', type: 'rest' },
+            '2026-06-21': { name: '端午节', type: 'rest' },
+            // 中秋节: 9月25日-27日放假
+            '2026-09-25': { name: '中秋节', type: 'rest' },
+            '2026-09-26': { name: '中秋节', type: 'rest' },
+            '2026-09-27': { name: '中秋节', type: 'rest' },
+            // 国庆节: 10月1日-7日放假, 9月20日/10月10日补班
+            '2026-09-20': { name: '国庆补班', type: 'work' },
+            '2026-10-01': { name: '国庆节', type: 'rest' },
+            '2026-10-02': { name: '国庆节', type: 'rest' },
+            '2026-10-03': { name: '国庆节', type: 'rest' },
+            '2026-10-04': { name: '国庆节', type: 'rest' },
+            '2026-10-05': { name: '国庆节', type: 'rest' },
+            '2026-10-06': { name: '国庆节', type: 'rest' },
+            '2026-10-07': { name: '国庆节', type: 'rest' },
+            '2026-10-10': { name: '国庆补班', type: 'work' }
+        };
+
+        // 旅行推荐数据库
+        const recommendDatabase = [
+            { name: '成都', province: '四川省', region: 'domestic', emoji: '🐼', desc: '天府之国，体验地道火锅、看萌萌大熊猫、逛宽窄巷子和锦里古街', tags: ['美食','熊猫','古街'], budget: '2000-4000', days: '3-4天', season: [1,2,3,4,5,6,7,8,9,10,11,12] },
+            { name: '大理', province: '云南省', region: 'domestic', emoji: '🏔️', desc: '苍山洱海间的世外桃源，古城漫步、环海骑行、感受风花雪月', tags: ['古城','洱海','慢生活'], budget: '2500-5000', days: '4-5天', season: [3,4,5,9,10,11] },
+            { name: '西安', province: '陕西省', region: 'domestic', emoji: '🏯', desc: '十三朝古都，兵马俑震撼人心，回民街美食数不胜数', tags: ['历史','美食','兵马俑'], budget: '2000-4000', days: '3-4天', season: [3,4,5,9,10,11] },
+            { name: '厦门', province: '福建省', region: 'domestic', emoji: '🏖️', desc: '文艺小岛鼓浪屿、南普陀寺朝拜、环岛路骑行吹海风', tags: ['海岛','文艺','海鲜'], budget: '2000-4000', days: '3-4天', season: [3,4,5,10,11] },
+            { name: '张家界', province: '湖南省', region: 'domestic', emoji: '⛰️', desc: '奇峰三千，秀水八百，阿凡达取景地，玻璃桥挑战勇气', tags: ['奇峰','自然','冒险'], budget: '2500-4500', days: '3-5天', season: [4,5,9,10] },
+            { name: '杭州', province: '浙江省', region: 'domestic', emoji: '🌸', desc: '西湖十景、龙井问茶、宋城千古情，人间天堂名不虚传', tags: ['西湖','茶文化','园林'], budget: '2000-4000', days: '2-4天', season: [3,4,5,9,10,11] },
+            { name: '桂林', province: '广西壮族自治区', region: 'domestic', emoji: '🛶', desc: '桂林山水甲天下，漓江竹筏漂流、阳朔十里画廊、龙脊梯田', tags: ['山水','漓江','田园'], budget: '2000-4000', days: '3-5天', season: [4,5,9,10] },
+            { name: '青岛', province: '山东省', region: 'domestic', emoji: '🍺', desc: '红瓦绿树碧海蓝天，栈桥漫步、崂山登顶、啤酒海鲜大快朵颐', tags: ['海滨','啤酒','德式建筑'], budget: '2000-3500', days: '3-4天', season: [5,6,7,8,9] },
+            { name: '三亚', province: '海南省', region: 'domestic', emoji: '🌴', desc: '热带海滨度假天堂，潜水冲浪、椰梦长廊日落、尽享阳光沙滩', tags: ['海滩','潜水','热带'], budget: '3000-6000', days: '4-5天', season: [11,12,1,2,3] },
+            { name: '哈尔滨', province: '黑龙江省', region: 'domestic', emoji: '❄️', desc: '东方小巴黎，冰雪大世界、中央大街俄式风情、马迭尔冰棍', tags: ['冰雪','俄式风情','冬季'], budget: '2500-5000', days: '3-5天', season: [12,1,2] },
+            { name: '东京', province: '日本', region: 'overseas', emoji: '🗼', desc: '现代与传统完美融合，浅草寺祈福、秋叶原文化、筑地市场美食', tags: ['动漫','美食','购物'], budget: '6000-12000', days: '5-7天', season: [3,4,10,11] },
+            { name: '曼谷', province: '泰国', region: 'overseas', emoji: '🛕', desc: '大皇宫金碧辉煌、考山路夜生活、街头美食令人流连忘返', tags: ['寺庙','美食','夜市'], budget: '3000-6000', days: '5-7天', season: [11,12,1,2,3] },
+            { name: '巴厘岛', province: '印度尼西亚', region: 'overseas', emoji: '🌺', desc: '神仙半岛，海神庙日落、乌布稻田瑜伽、库塔海滩冲浪', tags: ['海岛','瑜伽','冲浪'], budget: '5000-10000', days: '5-7天', season: [4,5,6,7,8,9] },
+            { name: '首尔', province: '韩国', region: 'overseas', emoji: '🎎', desc: '潮流之都，景福宫穿韩服、明洞购物、弘大街头文化', tags: ['韩流','购物','美食'], budget: '4000-8000', days: '4-6天', season: [3,4,5,9,10,11] },
+            { name: '新加坡', province: '新加坡', region: 'overseas', emoji: '🦁', desc: '花园城市，滨海湾金沙、环球影城、牛车水夜市，干净整洁', tags: ['都市','乐园','花园城市'], budget: '5000-10000', days: '4-5天', season: [1,2,3,4,5,6,7,8,9,10,11,12] },
+            { name: '巴黎', province: '法国', region: 'overseas', emoji: '🗼', desc: '浪漫之都，埃菲尔铁塔、卢浮宫、香榭丽舍大道，艺术与美食的天堂', tags: ['浪漫','艺术','美食'], budget: '10000-20000', days: '7-10天', season: [5,6,9,10] },
+            { name: '悉尼', province: '澳大利亚', region: 'overseas', emoji: '🦘', desc: '歌剧院标志性地标、邦迪海滩冲浪、蓝山探险，南半球明珠', tags: ['歌剧院','海滩','自然'], budget: '8000-15000', days: '7-10天', season: [10,11,12,1,2,3] },
+            { name: '清迈', province: '泰国', region: 'overseas', emoji: '🐘', desc: '泰北玫瑰，古城寺庙群、周末夜市、大象营互动，悠闲惬意', tags: ['寺庙','慢生活','夜市'], budget: '2500-5000', days: '4-6天', season: [11,12,1,2] }
+        ];
+
+        // DOM元素
+        const travelList = document.getElementById('travel-list');
+        const filterStatus = document.getElementById('filter-status');
+        const modalForm = document.getElementById('modal-form');
+        const modalDetail = document.getElementById('modal-detail');
+        const travelForm = document.getElementById('travel-form');
+
+        // 初始化
+        function init() {
+            loadData();
+            initProvinceSelect();
+            bindEvents();
+            bindWishEvents();
+            bindPackingEvents();
+            render();
+        }
+
+        // 加载数据
+        function loadData() {
+            const data = localStorage.getItem('weekend-travels');
+            travels = data ? JSON.parse(data) : [];
+            const wishData = localStorage.getItem('travel-wishlist');
+            wishlist = wishData ? JSON.parse(wishData) : [];
+        }
+
+        // 保存数据
+        function saveData() {
+            localStorage.setItem('weekend-travels', JSON.stringify(travels));
+        }
+
+        // 保存心愿单
+        function saveWishlist() {
+            localStorage.setItem('travel-wishlist', JSON.stringify(wishlist));
+        }
+
+        // 显示提示消息
+        function showToast(message, type) {
+            const toast = document.getElementById('import-toast');
+            toast.textContent = message;
+            toast.className = 'import-toast ' + type;
+            setTimeout(() => toast.classList.add('show'), 10);
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // 导出旅行记录为Excel文件
+        function exportTravels() {
+            if (travels.length === 0) {
+                showToast('暂无旅行记录可导出', 'error');
+                return;
+            }
+
+            // 定义Excel列映射
+            const headers = ['出发日期', '结束日期', '地区', '省份/国家', '城市', '花费(¥)', '状态', '旅行亮点'];
+            const rows = travels.map(t => [
+                t.startDate || '',
+                t.endDate || '',
+                t.region === 'domestic' ? '国内' : '海外',
+                t.province || '',
+                t.city || '',
+                t.expense ? Number(t.expense) : 0,
+                t.status === 'completed' ? '已完成' : '待出行',
+                t.highlight || ''
+            ]);
+
+            const wsData = [headers, ...rows];
+            const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+            // 设置列宽
+            ws['!cols'] = [
+                { wch: 14 }, // 出发日期
+                { wch: 14 }, // 结束日期
+                { wch: 8 },  // 地区
+                { wch: 16 }, // 省份/国家
+                { wch: 16 }, // 城市
+                { wch: 12 }, // 花费
+                { wch: 10 }, // 状态
+                { wch: 40 }  // 旅行亮点
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, '旅行记录');
+
+            const dateStr = new Date().toISOString().slice(0, 10);
+            XLSX.writeFile(wb, `旅行记录_${dateStr}.xlsx`);
+
+            showToast(`成功导出 ${travels.length} 条旅行记录到Excel`, 'success');
+        }
+
+        // 导入旅行记录（从Excel文件）
+        function importTravels(file) {
+            if (!file) return;
+
+            const validExts = ['.xlsx', '.xls', '.csv'];
+            const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+            if (!validExts.includes(ext)) {
+                showToast('请选择 .xlsx、.xls 或 .csv 格式的文件', 'error');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const wb = XLSX.read(data, { type: 'array' });
+
+                    // 读取第一个工作表
+                    const wsName = wb.SheetNames[0];
+                    const ws = wb.Sheets[wsName];
+                    const rows = XLSX.utils.sheet_to_json(ws, { header: 1 });
+
+                    if (rows.length < 2) {
+                        showToast('Excel文件中没有数据行', 'error');
+                        return;
+                    }
+
+                    // 解析表头，自动匹配列
+                    const headerRow = rows[0].map(h => String(h || '').trim());
+                    const colMap = {};
+                    headerRow.forEach((h, i) => {
+                        if (/出发|开始|日期/.test(h) && !colMap.startDate) colMap.startDate = i;
+                        else if (/结束|返回/.test(h)) colMap.endDate = i;
+                        else if (/地区|区域|国内|海外/.test(h)) colMap.region = i;
+                        else if (/省|国家/.test(h)) colMap.province = i;
+                        else if (/市|城市|县/.test(h)) colMap.city = i;
+                        else if (/花费|费用|金额|花销|消费/.test(h)) colMap.expense = i;
+                        else if (/状态|完成/.test(h)) colMap.status = i;
+                        else if (/亮点|备注|描述|感想/.test(h)) colMap.highlight = i;
+                    });
+
+                    // 至少需要日期和地点
+                    if (colMap.startDate === undefined && colMap.province === undefined) {
+                        showToast('无法识别表头，请确保包含"出发日期"和"省份"等列', 'error');
+                        return;
+                    }
+
+                    // 解析数据行
+                    const importRecords = [];
+                    for (let i = 1; i < rows.length; i++) {
+                        const row = rows[i];
+                        if (!row || row.length === 0) continue;
+
+                        // 解析日期（支持多种格式）
+                        let startDate = '';
+                        if (colMap.startDate !== undefined && row[colMap.startDate]) {
+                            startDate = parseExcelDate(row[colMap.startDate]);
+                        }
+
+                        let endDate = '';
+                        if (colMap.endDate !== undefined && row[colMap.endDate]) {
+                            endDate = parseExcelDate(row[colMap.endDate]);
+                        }
+
+                        const province = colMap.province !== undefined ? String(row[colMap.province] || '') : '';
+                        const city = colMap.city !== undefined ? String(row[colMap.city] || '') : '';
+
+                        if (!startDate && !province && !city) continue;
+
+                        // 解析地区
+                        let region = 'domestic';
+                        if (colMap.region !== undefined) {
+                            const regionVal = String(row[colMap.region] || '');
+                            region = /海外|国外|overseas/.test(regionVal) ? 'overseas' : 'domestic';
+                        } else if (province) {
+                            // 自动判断：如果省份不在国内省份列表中，则为海外
+                            region = domesticProvinces.includes(province) ? 'domestic' : 'overseas';
+                        }
+
+                        // 解析花费
+                        let expense = 0;
+                        if (colMap.expense !== undefined && row[colMap.expense]) {
+                            expense = parseFloat(String(row[colMap.expense]).replace(/[¥￥,，]/g, '')) || 0;
+                        }
+
+                        // 解析状态
+                        let status = 'pending';
+                        if (colMap.status !== undefined) {
+                            const statusVal = String(row[colMap.status] || '');
+                            status = /完成|已|done|completed/.test(statusVal) ? 'completed' : 'pending';
+                        }
+
+                        const highlight = colMap.highlight !== undefined ? String(row[colMap.highlight] || '') : '';
+
+                        importRecords.push({
+                            id: Date.now().toString(36) + Math.random().toString(36).slice(2, 8) + i,
+                            startDate,
+                            endDate,
+                            region,
+                            province,
+                            city,
+                            expense,
+                            status,
+                            highlight
+                        });
+                    }
+
+                    if (importRecords.length === 0) {
+                        showToast('未能从Excel中解析出有效的旅行记录', 'error');
+                        return;
+                    }
+
+                    // 弹窗让用户选择导入模式
+                    const existingCount = travels.length;
+                    let mode = 'merge';
+                    if (existingCount > 0) {
+                        const choice = confirm(
+                            `从Excel中识别到 ${importRecords.length} 条旅行记录。\n\n` +
+                            `当前已有 ${existingCount} 条记录。\n\n` +
+                            `点击「确定」→ 合并（保留现有 + 添加新的）\n` +
+                            `点击「取消」→ 替换（清空现有，仅保留导入的）`
+                        );
+                        mode = choice ? 'merge' : 'replace';
+                    }
+
+                    let addedCount = 0;
+
+                    if (mode === 'replace') {
+                        travels = importRecords;
+                        addedCount = importRecords.length;
+                    } else {
+                        const existingKeys = new Set(
+                            travels.map(t => `${t.startDate}_${t.province}_${t.city}`)
+                        );
+
+                        importRecords.forEach(r => {
+                            const key = `${r.startDate}_${r.province}_${r.city}`;
+                            if (!existingKeys.has(key)) {
+                                travels.push(r);
+                                addedCount++;
+                            }
+                        });
+                    }
+
+                    saveData();
+                    render();
+
+                    if (mode === 'replace') {
+                        showToast(`已替换，共 ${addedCount} 条旅行记录`, 'success');
+                    } else {
+                        const skipped = importRecords.length - addedCount;
+                        let msg = `成功导入 ${addedCount} 条新记录`;
+                        if (skipped > 0) msg += `，${skipped} 条重复已跳过`;
+                        showToast(msg, 'success');
+                    }
+                } catch (err) {
+                    showToast('文件解析失败，请确保是有效的Excel文件', 'error');
+                    console.error('导入错误:', err);
+                }
+            };
+
+            reader.onerror = function() {
+                showToast('文件读取失败', 'error');
+            };
+
+            reader.readAsArrayBuffer(file);
+            document.getElementById('import-file-input').value = '';
+        }
+
+        // 解析Excel日期（支持多种格式）
+        function parseExcelDate(val) {
+            if (!val) return '';
+            // Excel序列号日期
+            if (typeof val === 'number') {
+                const date = new Date((val - 25569) * 86400 * 1000);
+                return date.toISOString().slice(0, 10);
+            }
+            const str = String(val).trim();
+            // yyyy-mm-dd
+            if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(str)) return str;
+            // yyyy/mm/dd
+            if (/^\d{4}\/\d{1,2}\/\d{1,2}$/.test(str)) return str.replace(/\//g, '-');
+            // mm/dd/yyyy or dd/mm/yyyy - 尝试解析
+            const d = new Date(str);
+            if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+            return str;
+        }
+
+        // 初始化地区选择
+        function initProvinceSelect() {
+            updateProvinceSelect();
+        }
+
+        // 更新省份/国家选择
+        function updateProvinceSelect() {
+            const select = document.getElementById('travel-province');
+            const label = document.getElementById('province-label');
+            const cityLabel = document.getElementById('city-label');
+            
+            select.innerHTML = '<option value="">请选择</option>';
+            
+            const list = currentRegion === 'domestic' ? domesticProvinces : overseasCountries;
+            const regionName = currentRegion === 'domestic' ? '省份' : '国家';
+            const cityPlaceholder = currentRegion === 'domestic' ? '例如：杭州市西湖区' : '例如：东京涩谷区';
+            
+            label.textContent = `${regionName} *`;
+            cityLabel.textContent = currentRegion === 'domestic' ? '市县 *' : '城市 *';
+            document.getElementById('travel-city').placeholder = cityPlaceholder;
+
+            list.forEach(item => {
+                const option = document.createElement('option');
+                option.value = item;
+                option.textContent = item;
+                select.appendChild(option);
+            });
+        }
+
+        // 绑定事件
+        function bindEvents() {
+            // 视图切换
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => switchView(tab.dataset.view));
+            });
+
+            // 筛选
+            filterStatus.addEventListener('change', renderTravelList);
+
+            // 添加按钮
+            document.getElementById('btn-add').addEventListener('click', () => openFormModal());
+
+            // 导出按钮
+            document.getElementById('btn-export').addEventListener('click', exportTravels);
+
+            // 导入按钮
+            document.getElementById('btn-import').addEventListener('click', () => {
+                document.getElementById('import-file-input').click();
+            });
+
+            // 文件选择
+            document.getElementById('import-file-input').addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    importTravels(e.target.files[0]);
+                }
+            });
+
+            // 地区切换
+            document.querySelectorAll('.region-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentRegion = btn.dataset.region;
+                    updateProvinceSelect();
+                });
+            });
+
+            // 表单模态框
+            document.getElementById('modal-close').addEventListener('click', closeFormModal);
+            document.getElementById('btn-cancel').addEventListener('click', closeFormModal);
+            document.getElementById('btn-save').addEventListener('click', saveTravel);
+            modalForm.addEventListener('click', (e) => {
+                if (e.target === modalForm) closeFormModal();
+            });
+
+            // 详情模态框
+            document.getElementById('detail-close').addEventListener('click', closeDetailModal);
+            document.getElementById('btn-detail-close').addEventListener('click', closeDetailModal);
+            document.getElementById('btn-detail-edit').addEventListener('click', () => {
+                closeDetailModal();
+                openFormModal(viewingDetail);
+            });
+            modalDetail.addEventListener('click', (e) => {
+                if (e.target === modalDetail) closeDetailModal();
+            });
+
+            // 日历导航
+            document.getElementById('btn-prev-month').addEventListener('click', () => {
+                currentMonth.setMonth(currentMonth.getMonth() - 1);
+                renderCalendar();
+            });
+            document.getElementById('btn-next-month').addEventListener('click', () => {
+                currentMonth.setMonth(currentMonth.getMonth() + 1);
+                renderCalendar();
+            });
+            document.getElementById('btn-today').addEventListener('click', () => {
+                currentMonth = new Date();
+                renderCalendar();
+            });
+
+            // 欢迎横幅
+            const banner = document.getElementById('welcome-banner');
+            if (localStorage.getItem('welcome-banner-closed') === '1') {
+                banner.classList.add('hidden');
+            }
+            document.getElementById('welcome-close').addEventListener('click', () => {
+                banner.classList.add('hidden');
+                localStorage.setItem('welcome-banner-closed', '1');
+            });
+        }
+
+        // 切换视图
+        function switchView(view) {
+            currentView = view;
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.view === view);
+            });
+            document.querySelectorAll('.view-container').forEach(container => {
+                container.classList.toggle('active', container.id === `view-${view}`);
+            });
+            render();
+        }
+
+        // 渲染
+        function render() {
+            renderStats();
+            renderTravelList();
+            renderCalendar();
+            renderAnalysis();
+            renderRecommend();
+            renderWishlist();
+        }
+
+        // 渲染统计
+        function renderStats() {
+            const total = travels.length;
+            const completed = travels.filter(t => t.status === 'completed').length;
+            const pending = travels.filter(t => t.status === 'pending').length;
+            const totalExpense = travels.reduce((sum, t) => sum + (parseFloat(t.expense) || 0), 0);
+
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-completed').textContent = completed;
+            document.getElementById('stat-pending').textContent = pending;
+            document.getElementById('stat-expense').textContent = '¥' + totalExpense.toLocaleString();
+        }
+
+        // 渲染旅行列表
+        function renderTravelList() {
+            const filter = filterStatus.value;
+            let filtered = [...travels];
+
+            if (filter !== 'all') {
+                filtered = filtered.filter(t => t.status === filter);
+            }
+
+            filtered.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+
+            if (filtered.length === 0) {
+                travelList.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1 / -1;">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+                            <path d="M2 17l10 5 10-5"/>
+                            <path d="M2 12l10 5 10-5"/>
+                        </svg>
+                        <h3>暂无旅行记录</h3>
+                        <p>点击"添加旅行"按钮记录你的第一次周末出行</p>
+                    </div>
+                `;
+                return;
+            }
+
+            travelList.innerHTML = filtered.map((travel, index) => {
+                const duration = travel.startDate && travel.endDate ? 
+                    getDaysBetween(travel.startDate, travel.endDate) + 1 : 1;
+                
+                return `
+                <div class="travel-card ${travel.status}" style="animation-delay: ${index * 0.05}s">
+                    <div class="travel-card-header">
+                        <div class="travel-date">
+                            <div class="travel-date-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="3" y="4" width="18" height="18" rx="2"/>
+                                    <line x1="3" y1="10" x2="21" y2="10"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <div class="travel-date-text">出行日期</div>
+                                <div class="travel-date-value">${formatDateRange(travel.startDate, travel.endDate)}</div>
+                            </div>
+                        </div>
+                        <span class="travel-status ${travel.status}">${travel.status === 'completed' ? '已完成' : '待出行'}</span>
+                    </div>
+                    <div class="travel-destination">
+                        <h3>
+                            ${travel.city}
+                            <span class="region-badge ${travel.region}">${travel.region === 'domestic' ? '国内' : '海外'}</span>
+                        </h3>
+                        <span>${travel.province}</span>
+                    </div>
+                    <div class="travel-duration">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        ${duration}天${duration > 1 ? ' ' + duration + '夜' : ''}
+                    </div>
+                    <div class="travel-expense">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="1" x2="12" y2="23"/>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                        </svg>
+                        <span>¥${parseFloat(travel.expense).toLocaleString()}</span>
+                    </div>
+                    ${travel.highlight ? `
+                        <div class="travel-highlight">
+                            <div class="travel-highlight-label">旅行亮点</div>
+                            ${travel.highlight}
+                        </div>
+                    ` : ''}
+                    <div class="travel-card-actions">
+                        <button class="btn-action packing" onclick="openPackingModal('${travel.id}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                                <line x1="3" y1="6" x2="21" y2="6"/>
+                                <path d="M16 10a4 4 0 0 1-8 0"/>
+                            </svg>
+                            行李
+                            ${(() => {
+                                const ps = getPackingSummary(travel.id);
+                                if (!ps.hasData) return '<span class="packing-badge empty">0</span>';
+                                if (ps.checked === ps.total) return '<span class="packing-badge done">' + ps.checked + '/' + ps.total + '</span>';
+                                return '<span class="packing-badge partial">' + ps.checked + '/' + ps.total + '</span>';
+                            })()}
+                        </button>
+                        <button class="btn-action" onclick="showDetail('${travel.id}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                            查看
+                        </button>
+                        <button class="btn-action" onclick="editTravel('${travel.id}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            编辑
+                        </button>
+                        <button class="btn-action delete" onclick="deleteTravel('${travel.id}')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                            删除
+                        </button>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        // 获取日期天数差
+        function getDaysBetween(start, end) {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            return Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24));
+        }
+
+        // 格式化日期区间
+        function formatDateRange(startDate, endDate) {
+            const start = new Date(startDate);
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            
+            if (!endDate || startDate === endDate) {
+                return `${start.getMonth() + 1}月${start.getDate()}日 ${weekdays[start.getDay()]}`;
+            }
+            
+            const end = new Date(endDate);
+            return `${start.getMonth() + 1}月${start.getDate()}日 - ${end.getMonth() + 1}月${end.getDate()}日`;
+        }
+
+        // 渲染日历
+        function renderCalendar() {
+            const year = currentMonth.getFullYear();
+            const month = currentMonth.getMonth();
+
+            document.getElementById('calendar-title').textContent = `${year}年${month + 1}月`;
+
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDay = firstDay.getDay();
+            const totalDays = lastDay.getDate();
+
+            const today = new Date();
+            const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+
+            const days = [];
+            
+            const prevMonthLastDay = new Date(year, month, 0).getDate();
+            for (let i = startDay - 1; i >= 0; i--) {
+                days.push({ day: prevMonthLastDay - i, isOtherMonth: true });
+            }
+
+            for (let i = 1; i <= totalDays; i++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const dayTravels = travels.filter(t => {
+                    const start = t.startDate;
+                    const end = t.endDate || t.startDate;
+                    return dateStr >= start && dateStr <= end;
+                });
+                const holiday = holidays2026[dateStr] || null;
+                days.push({
+                    day: i,
+                    dateStr: dateStr,
+                    isOtherMonth: false,
+                    isToday: isCurrentMonth && today.getDate() === i,
+                    travels: dayTravels,
+                    holiday: holiday
+                });
+            }
+
+            const remaining = 42 - days.length;
+            for (let i = 1; i <= remaining; i++) {
+                days.push({ day: i, isOtherMonth: true });
+            }
+
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = days.map(d => {
+                if (d.isOtherMonth) {
+                    return `<div class="calendar-day other-month"><div class="day-number">${d.day}</div></div>`;
+                }
+
+                let extraClass = '';
+                if (d.holiday) {
+                    extraClass = d.holiday.type === 'rest' ? 'holiday-day' : 'workday-adjust';
+                }
+
+                const markers = d.travels.map(t => 
+                    `<div class="day-marker ${t.status}" title="${t.province}${t.city}"></div>`
+                ).join('');
+
+                const label = d.travels.length > 0 ? 
+                    `${d.travels[0].province}${d.travels[0].city}${d.travels.length > 1 ? `等${d.travels.length}次` : ''}` : '';
+
+                let holidayHtml = '';
+                if (d.holiday) {
+                    const tagClass = d.holiday.type === 'rest' ? 'rest' : 'work';
+                    const tagText = d.holiday.type === 'rest' ? '休' : '班';
+                    holidayHtml = `<span class="holiday-tag ${tagClass}">${tagText}</span>`;
+                }
+
+                let holidayNameHtml = '';
+                if (d.holiday && d.holiday.type === 'rest' && !d.holiday.name.includes('补班')) {
+                    holidayNameHtml = `<div class="holiday-name">${d.holiday.name}</div>`;
+                }
+
+                return `
+                    <div class="calendar-day ${d.isToday ? 'today' : ''} ${extraClass}" onclick="showDayDetail('${d.dateStr}')">
+                        <div class="day-number">${d.day} ${holidayHtml}</div>
+                        ${holidayNameHtml}
+                        <div class="day-markers">${markers}</div>
+                        ${label ? `<div class="day-label">${label}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // 渲染数据分析
+        function renderAnalysis() {
+            const container = document.getElementById('analysis-content');
+            
+            if (travels.length === 0) {
+                container.innerHTML = `
+                    <div class="no-data-message">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <line x1="18" y1="20" x2="18" y2="10"/>
+                            <line x1="12" y1="20" x2="12" y2="4"/>
+                            <line x1="6" y1="20" x2="6" y2="14"/>
+                        </svg>
+                        <h3>暂无旅行数据</h3>
+                        <p>添加一些旅行记录后，即可查看数据分析</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // 计算统计数据
+            const totalTrips = travels.length;
+            const completedTrips = travels.filter(t => t.status === 'completed').length;
+            const totalExpense = travels.reduce((sum, t) => sum + (parseFloat(t.expense) || 0), 0);
+            const avgExpense = totalExpense / totalTrips;
+            
+            const domesticTrips = travels.filter(t => t.region === 'domestic').length;
+            const overseasTrips = travels.filter(t => t.region === 'overseas').length;
+
+            // 费用分布（按目的地）
+            const expenseByPlace = {};
+            travels.forEach(t => {
+                const key = t.province;
+                expenseByPlace[key] = (expenseByPlace[key] || 0) + parseFloat(t.expense || 0);
+            });
+            const sortedExpensePlaces = Object.entries(expenseByPlace)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8);
+
+            // 出行地点分布
+            const tripsByPlace = {};
+            travels.forEach(t => {
+                const key = t.province;
+                tripsByPlace[key] = (tripsByPlace[key] || 0) + 1;
+            });
+            const sortedPlaces = Object.entries(tripsByPlace)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 8);
+
+            // 月度出行统计
+            const monthlyTrips = {};
+            travels.forEach(t => {
+                const month = t.startDate.substring(0, 7);
+                monthlyTrips[month] = (monthlyTrips[month] || 0) + 1;
+            });
+            const sortedMonths = Object.entries(monthlyTrips)
+                .sort((a, b) => a[0].localeCompare(b[0]))
+                .slice(-12);
+
+            container.innerHTML = `
+                <div class="analysis-summary">
+                    <div class="summary-card">
+                        <div class="summary-value">${totalTrips}</div>
+                        <div class="summary-label">总出行次数</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value">${completedTrips}</div>
+                        <div class="summary-label">已完成</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value">¥${totalExpense.toLocaleString()}</div>
+                        <div class="summary-label">总花费</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value">¥${Math.round(avgExpense).toLocaleString()}</div>
+                        <div class="summary-label">平均花费</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value">${domesticTrips}</div>
+                        <div class="summary-label">国内出行</div>
+                    </div>
+                    <div class="summary-card">
+                        <div class="summary-value">${overseasTrips}</div>
+                        <div class="summary-label">海外出行</div>
+                    </div>
+                </div>
+
+                <div class="chart-grid">
+                    <div class="chart-card">
+                        <div class="chart-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/>
+                                <path d="M22 12A10 10 0 0 0 12 2v10z"/>
+                            </svg>
+                            出行地点分布
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chart-place-distribution"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="12" y1="1" x2="12" y2="23"/>
+                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                            </svg>
+                            费用分布 (按目的地)
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chart-expense-distribution"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card full-width">
+                        <div class="chart-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="18" y1="20" x2="18" y2="10"/>
+                                <line x1="12" y1="20" x2="12" y2="4"/>
+                                <line x1="6" y1="20" x2="6" y2="14"/>
+                            </svg>
+                            月度出行趋势
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chart-monthly-trend"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"/>
+                                <line x1="2" y1="12" x2="22" y2="12"/>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/>
+                            </svg>
+                            国内/海外出行比例
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chart-region-ratio"></canvas>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <div class="chart-title">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                                <polyline points="22 4 12 14.01 9 11.01"/>
+                            </svg>
+                            完成率统计
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="chart-completion-rate"></canvas>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // 渲染图表
+            setTimeout(() => {
+                renderPlaceDistributionChart(sortedPlaces);
+                renderExpenseDistributionChart(sortedExpensePlaces);
+                renderMonthlyTrendChart(sortedMonths);
+                renderRegionRatioChart(domesticTrips, overseasTrips);
+                renderCompletionRateChart(completedTrips, totalTrips);
+            }, 100);
+        }
+
+        // 渲染地点分布饼图
+        function renderPlaceDistributionChart(data) {
+            const canvas = document.getElementById('chart-place-distribution');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = canvas.offsetHeight;
+            if (data.length === 0) { ctx.fillStyle='#7F8C8D'; ctx.font='14px Noto Sans SC'; ctx.textAlign='center'; ctx.fillText('暂无数据',width/2,height/2); return; }
+            const total = data.reduce((sum,[,count])=>sum+count,0);
+            const radius = Math.min(width,height)/2-40;
+            let startAngle = -Math.PI/2;
+            data.forEach(([label,count],i)=>{
+                const sliceAngle=(count/total)*2*Math.PI;
+                ctx.beginPath(); ctx.moveTo(width/2,height/2);
+                ctx.arc(width/2,height/2,radius,startAngle,startAngle+sliceAngle);
+                ctx.closePath(); ctx.fillStyle=chartColors[i%chartColors.length]; ctx.fill();
+                startAngle+=sliceAngle;
+            });
+            startAngle=-Math.PI/2;
+            data.forEach(([label,count],i)=>{
+                const sliceAngle=(count/total)*2*Math.PI;
+                const midAngle=startAngle+sliceAngle/2;
+                const labelRadius=radius+20;
+                const x=width/2+Math.cos(midAngle)*labelRadius;
+                const y=height/2+Math.sin(midAngle)*labelRadius;
+                ctx.fillStyle='#2C3E50'; ctx.font='11px Noto Sans SC'; ctx.textAlign='center';
+                ctx.fillText(`${label} (${count}次)`,x,y);
+                startAngle+=sliceAngle;
+            });
+        }
+
+        // 渲染费用分布柱状图
+        function renderExpenseDistributionChart(data) {
+            const canvas = document.getElementById('chart-expense-distribution');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = canvas.offsetHeight;
+            if (data.length === 0) { ctx.fillStyle='#7F8C8D'; ctx.font='14px Noto Sans SC'; ctx.textAlign='center'; ctx.fillText('暂无数据',width/2,height/2); return; }
+            const maxValue = Math.max(...data.map(([,v])=>v));
+            const barWidth = (width-60)/data.length-8;
+            const chartHeight = height-60;
+            data.forEach(([label,value],i)=>{
+                const barHeight=(value/maxValue)*chartHeight;
+                const x=40+i*(barWidth+8); const y=height-30-barHeight;
+                ctx.fillStyle=chartColors[i%chartColors.length];
+                ctx.fillRect(x,y,barWidth,barHeight);
+                ctx.fillStyle='#2C3E50'; ctx.font='10px Noto Sans SC'; ctx.textAlign='center';
+                ctx.fillText('¥'+value.toLocaleString(),x+barWidth/2,y-5);
+                ctx.fillStyle='#7F8C8D'; ctx.font='10px Noto Sans SC';
+                const displayLabel=label.length>4?label.substring(0,4)+'..':label;
+                ctx.fillText(displayLabel,x+barWidth/2,height-10);
+            });
+        }
+
+        // 渲染月度趋势图
+        function renderMonthlyTrendChart(data) {
+            const canvas = document.getElementById('chart-monthly-trend');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = canvas.offsetHeight;
+            if (data.length === 0) { ctx.fillStyle='#7F8C8D'; ctx.font='14px Noto Sans SC'; ctx.textAlign='center'; ctx.fillText('暂无数据',width/2,height/2); return; }
+            const maxValue = Math.max(...data.map(([,v])=>v),1);
+            const chartWidth = width-60; const chartHeight = height-60;
+            const stepX = chartWidth/(data.length-1||1);
+            ctx.strokeStyle='#D5E8D4'; ctx.lineWidth=1;
+            for(let i=0;i<=4;i++){const y=20+(chartHeight/4)*i; ctx.beginPath(); ctx.moveTo(40,y); ctx.lineTo(width-20,y); ctx.stroke();}
+            const barWidth=Math.min(30,chartWidth/data.length-4);
+            data.forEach(([month,count],i)=>{
+                const barHeight=(count/maxValue)*chartHeight;
+                const x=40+i*stepX+(stepX-barWidth)/2; const y=height-30-barHeight;
+                const gradient=ctx.createLinearGradient(x,y,x,height-30);
+                gradient.addColorStop(0,'#2E9E6B'); gradient.addColorStop(1,'#2E9E6B50');
+                ctx.fillStyle=gradient; ctx.fillRect(x,y,barWidth,barHeight);
+                ctx.fillStyle='#2C3E50'; ctx.font='bold 11px Noto Sans SC'; ctx.textAlign='center';
+                ctx.fillText(count.toString(),x+barWidth/2,y-5);
+                ctx.fillStyle='#7F8C8D'; ctx.font='10px Noto Sans SC';
+                const monthLabel=month.substring(5);
+                ctx.fillText(`${monthLabel}月`,x+barWidth/2,height-10);
+            });
+            ctx.beginPath(); ctx.strokeStyle='#2E9E6B'; ctx.lineWidth=2;
+            data.forEach(([month,count],i)=>{
+                const x=40+i*stepX; const y=height-30-(count/maxValue)*chartHeight;
+                if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+            });
+            ctx.stroke();
+        }
+
+        // 渲染国内/海外比例图
+        function renderRegionRatioChart(domestic, overseas) {
+            const canvas = document.getElementById('chart-region-ratio');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = canvas.offsetHeight;
+            const total = domestic+overseas;
+            if (total===0) { ctx.fillStyle='#7F8C8D'; ctx.font='14px Noto Sans SC'; ctx.textAlign='center'; ctx.fillText('暂无数据',width/2,height/2); return; }
+            const radius = Math.min(width,height)/2-40;
+            const domesticAngle = (domestic/total)*2*Math.PI;
+            ctx.beginPath(); ctx.moveTo(width/2,height/2);
+            ctx.arc(width/2,height/2,radius,-Math.PI/2,-Math.PI/2+domesticAngle); ctx.closePath();
+            ctx.fillStyle='#27AE60'; ctx.fill();
+            ctx.beginPath(); ctx.moveTo(width/2,height/2);
+            ctx.arc(width/2,height/2,radius,-Math.PI/2+domesticAngle,-Math.PI/2+2*Math.PI); ctx.closePath();
+            ctx.fillStyle='#3498DB'; ctx.fill();
+            ctx.beginPath(); ctx.arc(width/2,height/2,radius*0.5,0,2*Math.PI);
+            ctx.fillStyle='#FFFFFF'; ctx.fill();
+            ctx.fillStyle='#2C3E50'; ctx.font='bold 16px Noto Sans SC'; ctx.textAlign='center';
+            ctx.fillText(`${total}`,width/2,height/2-5);
+            ctx.font='12px Noto Sans SC'; ctx.fillText('总次数',width/2,height/2+15);
+            ctx.font='11px Noto Sans SC'; ctx.fillStyle='#27AE60'; ctx.textAlign='left';
+            ctx.fillText(`国内 ${domestic}次 (${Math.round(domestic/total*100)}%)`,20,height-20);
+            ctx.fillStyle='#3498DB';
+            ctx.fillText(`海外 ${overseas}次 (${Math.round(overseas/total*100)}%)`,width/2+20,height-20);
+        }
+
+        // 渲染完成率图表
+        function renderCompletionRateChart(completed, total) {
+            const canvas = document.getElementById('chart-completion-rate');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width = canvas.offsetWidth;
+            const height = canvas.height = canvas.offsetHeight;
+            if (total===0) { ctx.fillStyle='#7F8C8D'; ctx.font='14px Noto Sans SC'; ctx.textAlign='center'; ctx.fillText('暂无数据',width/2,height/2); return; }
+            const pending = total-completed;
+            const radius = Math.min(width,height)/2-40;
+            const completedAngle = (completed/total)*2*Math.PI;
+            ctx.beginPath(); ctx.moveTo(width/2,height/2);
+            ctx.arc(width/2,height/2,radius,-Math.PI/2+completedAngle,-Math.PI/2+2*Math.PI); ctx.closePath();
+            ctx.fillStyle='#F39C12'; ctx.fill();
+            ctx.beginPath(); ctx.moveTo(width/2,height/2);
+            ctx.arc(width/2,height/2,radius,-Math.PI/2,-Math.PI/2+completedAngle); ctx.closePath();
+            ctx.fillStyle='#27AE60'; ctx.fill();
+            ctx.beginPath(); ctx.arc(width/2,height/2,radius*0.5,0,2*Math.PI);
+            ctx.fillStyle='#FFFFFF'; ctx.fill();
+            const rate = Math.round(completed/total*100);
+            ctx.fillStyle='#2C3E50'; ctx.font='bold 20px Noto Sans SC'; ctx.textAlign='center';
+            ctx.fillText(`${rate}%`,width/2,height/2-5);
+            ctx.font='12px Noto Sans SC'; ctx.fillText('完成率',width/2,height/2+15);
+            ctx.font='11px Noto Sans SC'; ctx.fillStyle='#27AE60'; ctx.textAlign='left';
+            ctx.fillText(`已完成 ${completed}次`,20,height-20);
+            ctx.fillStyle='#F39C12';
+            ctx.fillText(`待出行 ${pending}次`,width/2+20,height-20);
+        }
+
+        // 格式化日期
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            const weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+            return `${date.getMonth() + 1}月${date.getDate()}日 ${weekdays[date.getDay()]}`;
+        }
+
+        // 打开表单模态框
+        function openFormModal(travel = null) {
+            editingId = travel ? travel.id : null;
+            document.getElementById('modal-title').textContent = travel ? '编辑旅行记录' : '添加旅行记录';
+            
+            if (travel) {
+                // 设置地区类型
+                currentRegion = travel.region || 'domestic';
+                document.querySelectorAll('.region-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.region === currentRegion);
+                });
+                updateProvinceSelect();
+
+                document.getElementById('travel-start-date').value = travel.startDate;
+                document.getElementById('travel-end-date').value = travel.endDate || '';
+                document.getElementById('travel-province').value = travel.province;
+                document.getElementById('travel-city').value = travel.city;
+                document.getElementById('travel-expense').value = travel.expense;
+                document.getElementById('travel-status').value = travel.status;
+                document.getElementById('travel-highlight').value = travel.highlight || '';
+            } else {
+                travelForm.reset();
+                currentRegion = 'domestic';
+                document.querySelectorAll('.region-btn').forEach(btn => {
+                    btn.classList.toggle('active', btn.dataset.region === 'domestic');
+                });
+                updateProvinceSelect();
+
+                // 默认选择最近的周六
+                const today = new Date();
+                const dayOfWeek = today.getDay();
+                const daysUntilSaturday = dayOfWeek === 6 ? 0 : (6 - dayOfWeek);
+                const nextSaturday = new Date(today);
+                nextSaturday.setDate(today.getDate() + daysUntilSaturday);
+                document.getElementById('travel-start-date').value = nextSaturday.toISOString().split('T')[0];
+            }
+
+            modalForm.classList.add('active');
+        }
+
+        // 关闭表单模态框
+        function closeFormModal() {
+            modalForm.classList.remove('active');
+            editingId = null;
+        }
+
+        // 保存旅行
+        function saveTravel() {
+            const startDate = document.getElementById('travel-start-date').value;
+            const endDate = document.getElementById('travel-end-date').value;
+            const province = document.getElementById('travel-province').value;
+            const city = document.getElementById('travel-city').value;
+            const expense = document.getElementById('travel-expense').value;
+            const status = document.getElementById('travel-status').value;
+            const highlight = document.getElementById('travel-highlight').value;
+
+            if (!startDate || !province || !city || !expense) {
+                alert('请填写必填项');
+                return;
+            }
+
+            if (editingId) {
+                const index = travels.findIndex(t => t.id === editingId);
+                if (index !== -1) {
+                    travels[index] = { 
+                        ...travels[index], 
+                        startDate, 
+                        endDate, 
+                        province, 
+                        city, 
+                        expense, 
+                        status, 
+                        highlight,
+                        region: currentRegion
+                    };
+                }
+            } else {
+                const newTravel = {
+                    id: Date.now().toString(),
+                    startDate,
+                    endDate,
+                    province,
+                    city,
+                    expense,
+                    status,
+                    highlight,
+                    region: currentRegion
+                };
+                travels.push(newTravel);
+            }
+
+            saveData();
+            closeFormModal();
+            render();
+        }
+
+        // 编辑旅行
+        function editTravel(id) {
+            const travel = travels.find(t => t.id === id);
+            if (travel) {
+                openFormModal(travel);
+            }
+        }
+
+        // 删除旅行
+        function deleteTravel(id) {
+            if (confirm('确定要删除这条旅行记录吗？')) {
+                travels = travels.filter(t => t.id !== id);
+                saveData();
+                // 同时删除关联的行李清单
+                localStorage.removeItem('packing-' + id);
+                render();
+            }
+        }
+
+        // 显示详情
+        function showDetail(id) {
+            const travel = travels.find(t => t.id === id);
+            if (!travel) return;
+
+            viewingDetail = travel;
+
+            const duration = travel.startDate && travel.endDate ? 
+                getDaysBetween(travel.startDate, travel.endDate) + 1 : 1;
+
+            const detailContent = document.getElementById('detail-content');
+            detailContent.innerHTML = `
+                <div class="detail-item">
+                    <div class="detail-label">出行日期</div>
+                    <div class="detail-value">${formatDateRange(travel.startDate, travel.endDate)}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">出行地区</div>
+                    <div class="detail-value">
+                        <span class="region-badge ${travel.region}" style="display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 4px; margin-right: 8px; ${travel.region === 'domestic' ? 'background: rgba(39, 174, 96, 0.12); color: #27AE60;' : 'background: rgba(46, 158, 107, 0.12); color: #2E9E6B;'}">
+                            ${travel.region === 'domestic' ? '国内' : '海外'}
+                        </span>
+                        ${travel.region === 'domestic' ? '中国大陆' : '海外'}
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">目的地</div>
+                    <div class="detail-value">${travel.province} ${travel.city}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">出行天数</div>
+                    <div class="detail-value">${duration}天${duration > 1 ? ' ' + duration + '夜' : ''}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">花费</div>
+                    <div class="detail-value">¥${parseFloat(travel.expense).toLocaleString()}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">状态</div>
+                    <div class="detail-value">
+                        <span class="travel-status ${travel.status}" style="display: inline-block;">
+                            ${travel.status === 'completed' ? '已完成' : '待出行'}
+                        </span>
+                    </div>
+                </div>
+                ${travel.highlight ? `
+                    <div class="detail-item">
+                        <div class="detail-label">旅行亮点</div>
+                        <div class="detail-value">${travel.highlight}</div>
+                    </div>
+                ` : ''}
+            `;
+
+            modalDetail.classList.add('active');
+        }
+
+        // 关闭详情模态框
+        function closeDetailModal() {
+            modalDetail.classList.remove('active');
+            viewingDetail = null;
+        }
+
+        // 显示当天详情
+        function showDayDetail(dateStr) {
+            const dayTravels = travels.filter(t => {
+                const start = t.startDate;
+                const end = t.endDate || t.startDate;
+                return dateStr >= start && dateStr <= end;
+            });
+            
+            // 显示假日信息
+            const holiday = holidays2026[dateStr];
+            
+            if (dayTravels.length === 0 && !holiday) return;
+
+            if (dayTravels.length === 0 && holiday) {
+                viewingDetail = null;
+                const detailContent = document.getElementById('detail-content');
+                detailContent.innerHTML = `
+                    <div class="detail-item">
+                        <div class="detail-label">日期</div>
+                        <div class="detail-value">${formatDate(dateStr)}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">节假日信息</div>
+                        <div class="detail-value">
+                            <span class="holiday-tag ${holiday.type}" style="font-size: 12px; padding: 3px 10px;">${holiday.type === 'rest' ? '休' : '班'}</span>
+                            <span style="margin-left: 8px;">${holiday.name}</span>
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-value" style="color: var(--text-secondary); font-size: 14px;">
+                            ${holiday.type === 'rest' ? '法定假日，享受假期吧！' : '调休上班日，记得按时上班哦~'}
+                        </div>
+                    </div>
+                `;
+                modalDetail.classList.add('active');
+                return;
+            }
+
+            if (dayTravels.length === 1) {
+                showDetail(dayTravels[0].id);
+            } else {
+                viewingDetail = dayTravels[0];
+                const detailContent = document.getElementById('detail-content');
+                detailContent.innerHTML = `
+                    <div class="detail-item">
+                        <div class="detail-label">日期</div>
+                        <div class="detail-value">${formatDate(dateStr)}</div>
+                    </div>
+                    ${holiday ? `<div class="detail-item"><div class="detail-label">节假日</div><div class="detail-value"><span class="holiday-tag ${holiday.type}" style="font-size:12px;padding:3px 10px;">${holiday.type==='rest'?'休':'班'}</span> ${holiday.name}</div></div>` : ''}
+                    <div class="detail-item">
+                        <div class="detail-label">当日旅行 (${dayTravels.length}次)</div>
+                        ${dayTravels.map(t => `
+                            <div class="detail-value" style="margin-top: 12px; padding: 12px; background: var(--bg); border-radius: 8px; cursor: pointer;" onclick="showDetail('${t.id}')">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span>${t.province} ${t.city}</span>
+                                    <span class="travel-status ${t.status}" style="display: inline-block;">${t.status === 'completed' ? '已完成' : '待出行'}</span>
+                                </div>
+                                <div style="font-size: 14px; color: var(--text-secondary); margin-top: 4px;">
+                                    花费: ¥${parseFloat(t.expense).toLocaleString()}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+                modalDetail.classList.add('active');
+            }
+        }
+
+        // 获取空闲的周末和假期
+        function getFreeDates() {
+            const today = new Date();
+            const endOfYear = new Date(today.getFullYear(), 11, 31);
+            const freeDates = [];
+            
+            // 收集未来的假期（法定节假日，过滤已过去和已有安排的）
+            const holidayGroups = {};
+            Object.entries(holidays2026).forEach(([dateStr, info]) => {
+                if (info.type === 'rest' && new Date(dateStr) >= today) {
+                    const baseName = info.name.replace(/补班/, '');
+                    if (!holidayGroups[baseName]) {
+                        holidayGroups[baseName] = { dates: [], name: baseName };
+                    }
+                    holidayGroups[baseName].dates.push(dateStr);
+                }
+            });
+            
+            Object.values(holidayGroups).forEach(group => {
+                group.dates.sort();
+                const startDate = group.dates[0];
+                const endDate = group.dates[group.dates.length - 1];
+                // 检查是否已有旅行安排覆盖这个假期
+                const hasTravel = travels.some(t => {
+                    const tStart = t.startDate;
+                    const tEnd = t.endDate || t.startDate;
+                    return !(tEnd < startDate || tStart > endDate);
+                });
+                if (!hasTravel) {
+                    freeDates.push({
+                        type: 'holiday',
+                        name: group.name,
+                        startDate: startDate,
+                        endDate: endDate,
+                        days: group.dates.length
+                    });
+                }
+            });
+            
+            // 收集未来3个月内未安排的周末
+            const threeMonthsLater = new Date(today);
+            threeMonthsLater.setMonth(threeMonthsLater.getMonth() + 3);
+            
+            let checkDate = new Date(today);
+            checkDate.setDate(checkDate.getDate() + 1); // 从明天开始
+            
+            while (checkDate <= threeMonthsLater) {
+                if (checkDate.getDay() === 6) { // 周六
+                    const satStr = checkDate.toISOString().split('T')[0];
+                    const sunDate = new Date(checkDate);
+                    sunDate.setDate(sunDate.getDate() + 1);
+                    const sunStr = sunDate.toISOString().split('T')[0];
+                    
+                    // 检查是否是补班日
+                    const satHoliday = holidays2026[satStr];
+                    const sunHoliday = holidays2026[sunStr];
+                    if ((satHoliday && satHoliday.type === 'work') || (sunHoliday && sunHoliday.type === 'work')) {
+                        checkDate.setDate(checkDate.getDate() + 1);
+                        continue;
+                    }
+                    
+                    // 检查是否已在假期列表中
+                    const inHoliday = holidays2026[satStr] || holidays2026[sunStr];
+                    if (inHoliday) {
+                        checkDate.setDate(checkDate.getDate() + 1);
+                        continue;
+                    }
+                    
+                    // 检查是否已有旅行安排
+                    const hasTravel = travels.some(t => {
+                        const tStart = t.startDate;
+                        const tEnd = t.endDate || t.startDate;
+                        return !(tEnd < satStr || tStart > sunStr);
+                    });
+                    
+                    if (!hasTravel) {
+                        freeDates.push({
+                            type: 'weekend',
+                            name: `${checkDate.getMonth()+1}月${checkDate.getDate()}日周末`,
+                            startDate: satStr,
+                            endDate: sunStr,
+                            days: 2
+                        });
+                    }
+                }
+                checkDate.setDate(checkDate.getDate() + 1);
+            }
+            
+            return freeDates.sort((a, b) => a.startDate.localeCompare(b.startDate));
+        }
+
+        // 渲染旅行推荐
+        function renderRecommend() {
+            const container = document.getElementById('recommend-content');
+            if (!container) return;
+            
+            const freeDates = getFreeDates();
+            const currentMonthNum = new Date().getMonth() + 1;
+            
+            // 选择推荐目的地（根据当前季节和天数匹配）
+            function getRecommendations(freeDate) {
+                const monthNum = new Date(freeDate.startDate).getMonth() + 1;
+                let candidates = recommendDatabase.filter(r => r.season.includes(monthNum));
+                
+                // 如果假期天数少于等于2天，优先推荐国内短途
+                if (freeDate.days <= 2) {
+                    const domestic = candidates.filter(r => r.region === 'domestic');
+                    if (domestic.length >= 3) candidates = domestic;
+                }
+                
+                // 排除已去过的目的地
+                const visitedPlaces = travels.map(t => t.city);
+                candidates = candidates.filter(r => !visitedPlaces.includes(r.name));
+                
+                // 如果筛选后太少，放宽条件
+                if (candidates.length < 3) {
+                    candidates = recommendDatabase.filter(r => r.season.includes(monthNum));
+                }
+                
+                // 随机选3个
+                const shuffled = candidates.sort(() => 0.5 - Math.random());
+                return shuffled.slice(0, 3);
+            }
+            
+            if (freeDates.length === 0) {
+                container.innerHTML = `
+                    <div class="recommend-header">
+                        <h1>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:28px;height:28px;color:var(--primary)">
+                                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                            </svg>
+                            旅行目的地推荐
+                        </h1>
+                        <p>您近期的周末和假期都已安排了旅行，太棒了！继续享受旅途吧~</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            // 默认选择第一个空闲日期
+            const selectedIdx = 0;
+            const recommendations = getRecommendations(freeDates[selectedIdx]);
+            
+            container.innerHTML = `
+                <div class="recommend-header">
+                    <h1>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:28px;height:28px;color:var(--primary)">
+                            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                        旅行目的地推荐
+                    </h1>
+                    <p>以下是您还没有安排旅行的周末和假期，点击选择一个时间段，我们为您推荐合适的旅行目的地。</p>
+                </div>
+                
+                <div class="free-dates-section">
+                    <div class="free-dates-title">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2"/>
+                            <line x1="3" y1="10" x2="21" y2="10"/>
+                            <line x1="8" y1="2" x2="8" y2="6"/>
+                            <line x1="16" y1="2" x2="16" y2="6"/>
+                        </svg>
+                        空闲时间段 (${freeDates.length}个)
+                    </div>
+                    <div class="free-dates-grid" id="free-dates-grid">
+                        ${freeDates.map((fd, idx) => `
+                            <div class="free-date-chip ${idx === selectedIdx ? 'active' : ''}" onclick="selectFreeDate(${idx})">
+                                ${fd.name}
+                                <span class="chip-type">${fd.type === 'holiday' ? '假期' : '周末'} ${fd.days}天</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                
+                <div class="free-dates-title" style="margin-bottom: 16px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                    为「${freeDates[selectedIdx].name}」推荐的目的地
+                </div>
+                
+                <div class="recommend-cards" id="recommend-cards">
+                    ${recommendations.map(r => `
+                        <div class="recommend-card">
+                            <div class="recommend-card-emoji">${r.emoji}</div>
+                            <div class="recommend-card-body">
+                                <h3>${r.name}</h3>
+                                <div class="region-label">${r.province} · ${r.region === 'domestic' ? '国内' : '海外'}</div>
+                                <p>${r.desc}</p>
+                                <div class="recommend-tags">
+                                    ${r.tags.map(t => `<span class="recommend-tag">${t}</span>`).join('')}
+                                </div>
+                                <div class="recommend-info">
+                                    <span class="recommend-budget">¥${r.budget}</span>
+                                    <span class="recommend-days">建议 ${r.days}</span>
+                                    <button class="btn-add-plan" onclick="addRecommendToPlan('${r.name}','${r.province}','${r.region}','${freeDates[selectedIdx].startDate}','${freeDates[selectedIdx].endDate}')">加入计划</button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+        
+        // 选择空闲日期并刷新推荐
+        function selectFreeDate(idx) {
+            const freeDates = getFreeDates();
+            if (idx >= freeDates.length) return;
+            
+            // 更新chip激活状态
+            document.querySelectorAll('.free-date-chip').forEach((chip, i) => {
+                chip.classList.toggle('active', i === idx);
+            });
+            
+            const monthNum = new Date(freeDates[idx].startDate).getMonth() + 1;
+            let candidates = recommendDatabase.filter(r => r.season.includes(monthNum));
+            if (freeDates[idx].days <= 2) {
+                const domestic = candidates.filter(r => r.region === 'domestic');
+                if (domestic.length >= 3) candidates = domestic;
+            }
+            const visitedPlaces = travels.map(t => t.city);
+            candidates = candidates.filter(r => !visitedPlaces.includes(r.name));
+            if (candidates.length < 3) candidates = recommendDatabase.filter(r => r.season.includes(monthNum));
+            const shuffled = candidates.sort(() => 0.5 - Math.random());
+            const recommendations = shuffled.slice(0, 3);
+            
+            // 更新标题
+            const titleEl = document.querySelectorAll('.free-dates-title')[1];
+            if (titleEl) {
+                titleEl.innerHTML = `
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>
+                    为「${freeDates[idx].name}」推荐的目的地
+                `;
+            }
+            
+            // 更新推荐卡片
+            const cardsEl = document.getElementById('recommend-cards');
+            if (cardsEl) {
+                cardsEl.innerHTML = recommendations.map(r => `
+                    <div class="recommend-card">
+                        <div class="recommend-card-emoji">${r.emoji}</div>
+                        <div class="recommend-card-body">
+                            <h3>${r.name}</h3>
+                            <div class="region-label">${r.province} · ${r.region === 'domestic' ? '国内' : '海外'}</div>
+                            <p>${r.desc}</p>
+                            <div class="recommend-tags">
+                                ${r.tags.map(t => `<span class="recommend-tag">${t}</span>`).join('')}
+                            </div>
+                            <div class="recommend-info">
+                                <span class="recommend-budget">¥${r.budget}</span>
+                                <span class="recommend-days">建议 ${r.days}</span>
+                                <button class="btn-add-plan" onclick="addRecommendToPlan('${r.name}','${r.province}','${r.region}','${freeDates[idx].startDate}','${freeDates[idx].endDate}')">加入计划</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+        
+        // 将推荐添加到旅行计划
+        function addRecommendToPlan(city, province, region, startDate, endDate) {
+            currentRegion = region;
+            document.querySelectorAll('.region-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.region === region);
+            });
+            updateProvinceSelect();
+            
+            travelForm.reset();
+            editingId = null;
+            document.getElementById('modal-title').textContent = '添加旅行记录';
+            document.getElementById('travel-start-date').value = startDate;
+            document.getElementById('travel-end-date').value = endDate;
+            document.getElementById('travel-province').value = province;
+            document.getElementById('travel-city').value = city;
+            document.getElementById('travel-status').value = 'pending';
+            
+            modalForm.classList.add('active');
+        }
+
+        // ========== 心愿单功能 ==========
+        
+        // 渲染心愿单
+        function renderWishlist() {
+            const container = document.getElementById('wishlist-content');
+            if (!container) return;
+
+            if (wishlist.length === 0) {
+                container.innerHTML = `
+                    <div class="wishlist-empty">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                        </svg>
+                        <p>还没有旅行心愿，点击「添加心愿」开始记录想去的地方吧</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const priorityLabel = { high: '超级想去', medium: '比较想去', low: '有机会就去' };
+
+            container.innerHTML = `
+                <div class="wishlist-grid">
+                    ${wishlist.map(w => `
+                        <div class="wish-card">
+                            <div class="wish-card-header">
+                                <div class="wish-card-place">${w.place}</div>
+                                <div class="wish-card-actions">
+                                    <button title="编辑" onclick="editWish('${w.id}')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                        </svg>
+                                    </button>
+                                    <button class="btn-wish-delete" title="删除" onclick="deleteWish('${w.id}')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <polyline points="3 6 5 6 21 6"/>
+                                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            ${w.region ? `<div class="wish-card-region">${w.region}</div>` : ''}
+                            ${w.reason ? `<div class="wish-card-reason">${w.reason}</div>` : ''}
+                            ${w.tags && w.tags.length > 0 ? `
+                                <div class="wish-card-tags">
+                                    ${w.tags.map(t => `<span class="wish-tag">${t}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                            <div class="wish-card-footer">
+                                <span class="wish-priority ${w.priority}">${priorityLabel[w.priority] || '比较想去'}</span>
+                                <span>添加于 ${w.createdAt || '未知'}</span>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // 打开心愿单模态框
+        function openWishModal(wishId) {
+            const modal = document.getElementById('wish-modal');
+            const titleEl = document.getElementById('wish-modal-title');
+            
+            if (wishId) {
+                // 编辑模式
+                editingWishId = wishId;
+                const wish = wishlist.find(w => w.id === wishId);
+                if (!wish) return;
+                titleEl.textContent = '编辑旅行心愿';
+                document.getElementById('wish-id').value = wish.id;
+                document.getElementById('wish-place').value = wish.place;
+                document.getElementById('wish-region').value = wish.region || '';
+                document.getElementById('wish-priority').value = wish.priority || 'medium';
+                document.getElementById('wish-reason').value = wish.reason || '';
+                document.getElementById('wish-tags').value = (wish.tags || []).join(',');
+            } else {
+                // 新增模式
+                editingWishId = null;
+                titleEl.textContent = '添加旅行心愿';
+                document.getElementById('wish-form').reset();
+                document.getElementById('wish-id').value = '';
+                document.getElementById('wish-priority').value = 'medium';
+            }
+            
+            modal.classList.add('active');
+        }
+
+        // 关闭心愿单模态框
+        function closeWishModal() {
+            document.getElementById('wish-modal').classList.remove('active');
+            editingWishId = null;
+        }
+
+        // 保存心愿
+        function saveWish() {
+            const place = document.getElementById('wish-place').value.trim();
+            if (!place) {
+                alert('请输入目的地名称');
+                return;
+            }
+
+            const region = document.getElementById('wish-region').value.trim();
+            const priority = document.getElementById('wish-priority').value;
+            const reason = document.getElementById('wish-reason').value.trim();
+            const tagsStr = document.getElementById('wish-tags').value.trim();
+            const tags = tagsStr ? tagsStr.split(/[,，]/).map(t => t.trim()).filter(t => t) : [];
+            
+            const today = new Date();
+            const dateStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+
+            if (editingWishId) {
+                // 更新
+                const idx = wishlist.findIndex(w => w.id === editingWishId);
+                if (idx !== -1) {
+                    wishlist[idx] = { ...wishlist[idx], place, region, priority, reason, tags };
+                }
+            } else {
+                // 新增
+                const wish = {
+                    id: 'wish_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                    place,
+                    region,
+                    priority,
+                    reason,
+                    tags,
+                    createdAt: dateStr
+                };
+                wishlist.unshift(wish);
+            }
+
+            saveWishlist();
+            renderWishlist();
+            closeWishModal();
+            showToast(editingWishId ? '心愿已更新' : '心愿已添加', 'success');
+        }
+
+        // 编辑心愿
+        function editWish(id) {
+            openWishModal(id);
+        }
+
+        // 删除心愿
+        function deleteWish(id) {
+            if (!confirm('确定要删除这个旅行心愿吗？')) return;
+            wishlist = wishlist.filter(w => w.id !== id);
+            saveWishlist();
+            renderWishlist();
+            showToast('心愿已删除', 'success');
+        }
+
+        // ========== 行李清单功能 ==========
+
+        // 行李清单预设模板
+        const packingTemplates = {
+            'domestic-short': {
+                name: '国内短途',
+                categories: [
+                    { name: '衣物', icon: '&#128085;', items: ['上衣 x2', '裤子/裙子 x1', '内衣裤 x2', '袜子 x2', '睡衣', '外套/薄衫'] },
+                    { name: '洗漱', icon: '&#129532;', items: ['牙刷牙膏', '洗面奶', '毛巾', '梳子', '护肤品'] },
+                    { name: '电子设备', icon: '&#128241;', items: ['手机充电器', '充电宝', '数据线', '耳机'] },
+                    { name: '证件钱包', icon: '&#128179;', items: ['身份证', '银行卡', '现金', '交通卡'] },
+                    { name: '其他', icon: '&#127890;', items: ['雨伞', '纸巾', '口罩', '常备药品', '水杯'] }
+                ]
+            },
+            'domestic-long': {
+                name: '国内长途',
+                categories: [
+                    { name: '衣物', icon: '&#128085;', items: ['上衣 x4-5', '裤子/裙子 x3', '内衣裤 x5', '袜子 x5', '睡衣', '外套', '正式服装 x1', '鞋子（舒适步行鞋）'] },
+                    { name: '洗漱护肤', icon: '&#129532;', items: ['牙刷牙膏', '洗面奶', '洗发水/沐浴露', '毛巾', '梳子', '护肤品套装', '防晒霜', '卸妆棉'] },
+                    { name: '电子设备', icon: '&#128241;', items: ['手机充电器', '充电宝', '数据线', '耳机', '相机/GoPro', '存储卡'] },
+                    { name: '证件钱包', icon: '&#128179;', items: ['身份证', '银行卡', '现金', '交通卡', '酒店预订确认'] },
+                    { name: '药品健康', icon: '&#128138;', items: ['感冒药', '肠胃药', '创可贴', '晕车药', '驱蚊液'] },
+                    { name: '其他', icon: '&#127890;', items: ['雨伞', '纸巾', '口罩', '水杯', '零食', '眼罩耳塞', '小背包'] }
+                ]
+            },
+            'overseas': {
+                name: '海外旅行',
+                categories: [
+                    { name: '证件签证', icon: '&#128194;', items: ['护照', '签证（纸质/电子）', '身份证', '机票行程单', '酒店确认单', '旅行保险单', '护照复印件 x2', '两寸证件照 x2'] },
+                    { name: '衣物', icon: '&#128085;', items: ['上衣 x5', '裤子/裙子 x3', '内衣裤 x5', '袜子 x5', '睡衣', '外套', '正式服装', '舒适步行鞋'] },
+                    { name: '洗漱护肤', icon: '&#129532;', items: ['牙刷牙膏', '洗面奶', '洗发水/沐浴露（旅行装）', '防晒霜', '护肤品', '毛巾'] },
+                    { name: '电子设备', icon: '&#128241;', items: ['手机充电器', '充电宝', '万能转换插头', '数据线', '耳机', '相机', 'eSIM/境外电话卡'] },
+                    { name: '钱款支付', icon: '&#128176;', items: ['外币现金', '信用卡（Visa/Master）', '银联卡', '交通卡（当地）'] },
+                    { name: '药品健康', icon: '&#128138;', items: ['感冒药', '肠胃药', '创可贴', '晕车/晕机药', '防蚊喷雾', '消毒湿巾'] },
+                    { name: '其他', icon: '&#127890;', items: ['雨伞', '旅行颈枕', '眼罩耳塞', '密封袋', '翻译App', '行李锁'] }
+                ]
+            },
+            'beach': {
+                name: '海滩度假',
+                categories: [
+                    { name: '泳装装备', icon: '&#127946;', items: ['泳衣/泳裤', '泳镜', '浮潜面罩', '沙滩巾', '沙滩拖鞋', '泳帽'] },
+                    { name: '防晒护肤', icon: '&#9728;', items: ['防晒霜 SPF50+', '晒后修复', '防水喷雾', '太阳镜', '遮阳帽', '防晒衣'] },
+                    { name: '衣物', icon: '&#128085;', items: ['短袖/背心 x3', '短裤 x2', '裙子/沙滩裤', '内衣裤 x3', '薄外套', '人字拖'] },
+                    { name: '电子设备', icon: '&#128241;', items: ['手机防水袋', '充电器', '充电宝', '蓝牙音箱', '运动相机'] },
+                    { name: '其他', icon: '&#127890;', items: ['防水背包', '饮用水', '零食', '驱蚊液', '创可贴', '证件现金'] }
+                ]
+            },
+            'hiking': {
+                name: '登山徒步',
+                categories: [
+                    { name: '装备', icon: '&#129406;', items: ['登山鞋', '登山杖', '登山背包', '头灯/手电', '登山手套', '护膝'] },
+                    { name: '衣物', icon: '&#128085;', items: ['冲锋衣', '抓绒衫', '速干T恤 x2', '速干裤 x2', '运动内衣', '登山袜 x3', '帽子'] },
+                    { name: '食物饮水', icon: '&#127857;', items: ['水壶/水袋 (2L)', '能量棒', '压缩饼干', '电解质冲剂', '巧克力/坚果'] },
+                    { name: '安全急救', icon: '&#128138;', items: ['创可贴', '绷带', '消毒碘伏', '止痛药', '防蚊液', '紧急救生哨', '暖宝宝'] },
+                    { name: '电子设备', icon: '&#128241;', items: ['手机', '充电宝 (大容量)', '离线地图', '对讲机'] },
+                    { name: '其他', icon: '&#127890;', items: ['雨衣', '防晒霜', '太阳镜', '垃圾袋', '身份证', '少量现金'] }
+                ]
+            }
+        };
+
+        // 当前打开的行李清单旅行ID
+        let currentPackingTravelId = null;
+
+        // 获取旅行的行李清单数据
+        function getPackingList(travelId) {
+            const key = 'packing-' + travelId;
+            const data = localStorage.getItem(key);
+            return data ? JSON.parse(data) : null;
+        }
+
+        // 保存行李清单数据
+        function savePackingList(travelId, packingData) {
+            const key = 'packing-' + travelId;
+            localStorage.setItem(key, JSON.stringify(packingData));
+        }
+
+        // 打开行李清单
+        function openPackingModal(travelId) {
+            currentPackingTravelId = travelId;
+            const travel = travels.find(t => t.id === travelId);
+            if (!travel) return;
+
+            // 设置旅行信息
+            document.getElementById('packing-trip-info').textContent =
+                `${travel.province} ${travel.city} · ${formatDateRange(travel.startDate, travel.endDate)}`;
+
+            renderPackingList();
+            document.getElementById('packing-modal').classList.add('active');
+        }
+
+        // 关闭行李清单
+        function closePackingModal() {
+            document.getElementById('packing-modal').classList.remove('active');
+            currentPackingTravelId = null;
+            // 关闭模板下拉
+            document.getElementById('packing-template-dropdown').classList.remove('show');
+            // 刷新卡片上的badge
+            renderTravelList();
+        }
+
+        // 渲染行李清单
+        function renderPackingList() {
+            if (!currentPackingTravelId) return;
+            const packing = getPackingList(currentPackingTravelId);
+            const body = document.getElementById('packing-body');
+
+            if (!packing || packing.categories.length === 0) {
+                body.innerHTML = `
+                    <div class="packing-empty">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                            <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                            <line x1="3" y1="6" x2="21" y2="6"/>
+                            <path d="M16 10a4 4 0 0 1-8 0"/>
+                        </svg>
+                        <p>还没有创建行李清单<br>选择一个模板快速开始，或手动添加分类和物品</p>
+                        <div class="packing-add-category">
+                            <input type="text" class="packing-add-category-input" id="packing-new-cat-empty" placeholder="输入分类名称，如：衣物、洗漱...">
+                            <button class="packing-add-category-btn" onclick="addPackingCategory('packing-new-cat-empty')">添加分类</button>
+                        </div>
+                    </div>
+                `;
+                updatePackingProgress();
+                return;
+            }
+
+            let totalItems = 0;
+            let checkedItems = 0;
+
+            body.innerHTML = packing.categories.map((cat, catIdx) => {
+                const catChecked = cat.items.filter(i => i.checked).length;
+                totalItems += cat.items.length;
+                checkedItems += catChecked;
+
+                return `
+                    <div class="packing-category" data-cat-idx="${catIdx}">
+                        <div class="packing-category-header">
+                            <div class="packing-category-title">
+                                <span class="cat-icon">${cat.icon || '&#128230;'}</span>
+                                ${cat.name}
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;">
+                                <span class="packing-category-count">${catChecked}/${cat.items.length}</span>
+                                <button class="packing-item-delete" style="opacity:1;color:var(--text-secondary);" title="删除分类" onclick="deletePackingCategory(${catIdx})">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="packing-items">
+                            ${cat.items.map((item, itemIdx) => `
+                                <div class="packing-item ${item.checked ? 'checked' : ''}">
+                                    <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="togglePackingItem(${catIdx}, ${itemIdx})">
+                                    <input type="text" class="packing-item-name" value="${escapeHtml(item.name)}" onblur="renamePackingItem(${catIdx}, ${itemIdx}, this.value)" onkeydown="if(event.key==='Enter')this.blur()">
+                                    <button class="packing-item-delete" onclick="deletePackingItem(${catIdx}, ${itemIdx})">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <line x1="18" y1="6" x2="6" y2="18"/>
+                                            <line x1="6" y1="6" x2="18" y2="18"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <div class="packing-add-row">
+                            <input type="text" class="packing-add-input" id="packing-add-${catIdx}" placeholder="添加物品..." onkeydown="if(event.key==='Enter')addPackingItem(${catIdx})">
+                            <button class="packing-add-btn" onclick="addPackingItem(${catIdx})">添加</button>
+                        </div>
+                    </div>
+                `;
+            }).join('') + `
+                <div class="packing-add-category">
+                    <input type="text" class="packing-add-category-input" id="packing-new-cat" placeholder="添加新分类..." onkeydown="if(event.key==='Enter')addPackingCategory('packing-new-cat')">
+                    <button class="packing-add-category-btn" onclick="addPackingCategory('packing-new-cat')">添加分类</button>
+                </div>
+            `;
+
+            updatePackingProgress();
+        }
+
+        // 更新进度条
+        function updatePackingProgress() {
+            const packing = getPackingList(currentPackingTravelId);
+            let total = 0, checked = 0;
+            if (packing && packing.categories) {
+                packing.categories.forEach(cat => {
+                    total += cat.items.length;
+                    checked += cat.items.filter(i => i.checked).length;
+                });
+            }
+            const pct = total > 0 ? Math.round(checked / total * 100) : 0;
+            document.getElementById('packing-progress').innerHTML =
+                `已打包 <strong>${checked}</strong> / ${total} 件` +
+                `<div class="packing-progress-bar"><div class="packing-progress-fill" id="packing-progress-fill" style="width:${pct}%"></div></div>`;
+        }
+
+        // 勾选/取消物品
+        function togglePackingItem(catIdx, itemIdx) {
+            const packing = getPackingList(currentPackingTravelId);
+            if (!packing) return;
+            packing.categories[catIdx].items[itemIdx].checked = !packing.categories[catIdx].items[itemIdx].checked;
+            savePackingList(currentPackingTravelId, packing);
+            renderPackingList();
+        }
+
+        // 重命名物品
+        function renamePackingItem(catIdx, itemIdx, newName) {
+            const packing = getPackingList(currentPackingTravelId);
+            if (!packing) return;
+            const trimmed = newName.trim();
+            if (!trimmed) {
+                // 空名字就删除
+                packing.categories[catIdx].items.splice(itemIdx, 1);
+            } else {
+                packing.categories[catIdx].items[itemIdx].name = trimmed;
+            }
+            savePackingList(currentPackingTravelId, packing);
+            renderPackingList();
+        }
+
+        // 删除物品
+        function deletePackingItem(catIdx, itemIdx) {
+            const packing = getPackingList(currentPackingTravelId);
+            if (!packing) return;
+            packing.categories[catIdx].items.splice(itemIdx, 1);
+            savePackingList(currentPackingTravelId, packing);
+            renderPackingList();
+        }
+
+        // 添加物品
+        function addPackingItem(catIdx) {
+            const input = document.getElementById('packing-add-' + catIdx);
+            const name = input.value.trim();
+            if (!name) return;
+
+            let packing = getPackingList(currentPackingTravelId);
+            if (!packing) return;
+
+            packing.categories[catIdx].items.push({ name, checked: false });
+            savePackingList(currentPackingTravelId, packing);
+            renderPackingList();
+
+            // 重新聚焦输入框
+            setTimeout(() => {
+                const newInput = document.getElementById('packing-add-' + catIdx);
+                if (newInput) newInput.focus();
+            }, 50);
+        }
+
+        // 添加分类
+        function addPackingCategory(inputId) {
+            const input = document.getElementById(inputId);
+            const name = input.value.trim();
+            if (!name) return;
+
+            let packing = getPackingList(currentPackingTravelId);
+            if (!packing) {
+                packing = { categories: [] };
+            }
+
+            packing.categories.push({ name, icon: '&#128230;', items: [] });
+            savePackingList(currentPackingTravelId, packing);
+            renderPackingList();
+        }
+
+        // 删除分类
+        function deletePackingCategory(catIdx) {
+            const packing = getPackingList(currentPackingTravelId);
+            if (!packing) return;
+            const cat = packing.categories[catIdx];
+            if (!confirm(`确定要删除分类「${cat.name}」及其中所有物品吗？`)) return;
+            packing.categories.splice(catIdx, 1);
+            savePackingList(currentPackingTravelId, packing);
+            renderPackingList();
+        }
+
+        // 应用模板
+        function applyPackingTemplate(templateKey) {
+            const template = packingTemplates[templateKey];
+            if (!template) return;
+
+            let packing = getPackingList(currentPackingTravelId);
+            const hasData = packing && packing.categories && packing.categories.length > 0;
+
+            if (hasData) {
+                if (!confirm(`当前已有行李清单，应用「${template.name}」模板会追加新的分类。继续吗？`)) return;
+            }
+
+            if (!packing) {
+                packing = { categories: [] };
+            }
+
+            // 追加模板分类（避免同名重复）
+            const existingNames = new Set(packing.categories.map(c => c.name));
+            template.categories.forEach(cat => {
+                if (existingNames.has(cat.name)) {
+                    // 合并同名分类的物品
+                    const existCat = packing.categories.find(c => c.name === cat.name);
+                    const existItemNames = new Set(existCat.items.map(i => i.name));
+                    cat.items.forEach(itemName => {
+                        if (!existItemNames.has(itemName)) {
+                            existCat.items.push({ name: itemName, checked: false });
+                        }
+                    });
+                } else {
+                    packing.categories.push({
+                        name: cat.name,
+                        icon: cat.icon,
+                        items: cat.items.map(name => ({ name, checked: false }))
+                    });
+                }
+            });
+
+            savePackingList(currentPackingTravelId, packing);
+            renderPackingList();
+            document.getElementById('packing-template-dropdown').classList.remove('show');
+            showToast(`已应用「${template.name}」模板`, 'success');
+        }
+
+        // HTML转义
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // 获取行李清单打包进度摘要
+        function getPackingSummary(travelId) {
+            const packing = getPackingList(travelId);
+            if (!packing || !packing.categories || packing.categories.length === 0) {
+                return { total: 0, checked: 0, hasData: false };
+            }
+            let total = 0, checked = 0;
+            packing.categories.forEach(cat => {
+                total += cat.items.length;
+                checked += cat.items.filter(i => i.checked).length;
+            });
+            return { total, checked, hasData: true };
+        }
+
+        // 绑定行李清单事件
+        function bindPackingEvents() {
+            // 关闭模态框
+            document.getElementById('packing-modal-close').addEventListener('click', closePackingModal);
+            document.getElementById('packing-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('packing-modal')) closePackingModal();
+            });
+
+            // 模板下拉
+            document.getElementById('btn-packing-template').addEventListener('click', (e) => {
+                e.stopPropagation();
+                const dd = document.getElementById('packing-template-dropdown');
+                dd.classList.toggle('show');
+            });
+
+            // 模板选项点击
+            document.querySelectorAll('.packing-template-option').forEach(opt => {
+                opt.addEventListener('click', () => {
+                    applyPackingTemplate(opt.dataset.template);
+                });
+            });
+
+            // 点击其他地方关闭模板下拉
+            document.addEventListener('click', () => {
+                document.getElementById('packing-template-dropdown').classList.remove('show');
+            });
+        }
+
+        // 心愿单事件绑定
+        function bindWishEvents() {
+            document.getElementById('btn-add-wish').addEventListener('click', () => openWishModal());
+            document.getElementById('wish-modal-close').addEventListener('click', closeWishModal);
+            document.getElementById('wish-btn-cancel').addEventListener('click', closeWishModal);
+            document.getElementById('wish-btn-save').addEventListener('click', saveWish);
+            document.getElementById('wish-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('wish-modal')) closeWishModal();
+            });
+        }
+
+        // 启动应用
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
